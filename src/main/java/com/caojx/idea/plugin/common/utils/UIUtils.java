@@ -41,7 +41,8 @@ public class UIUtils {
             }
         }
 
-        VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(), project, path);
+        VirtualFile virtualFile = FileChooser.chooseFile(FileChooserDescriptorFactory.createSingleFolderDescriptor(),
+                project, path);
         if (virtualFile != null) {
             pathTf.setText(virtualFile.getPath());
         }
@@ -83,15 +84,19 @@ public class UIUtils {
      * 选择包并设置包路径
      *
      * @param project       项目
+     * @param basePackage   基础包
      * @param packageTf     包名输入框
      * @param packagePathTf 包路径输入框
      */
-    public static void choosePackageAndSetPackagePath(Project project, JTextField packageTf, JTextField packagePathTf) {
+    public static void choosePackageAndSetPackagePath(Project project,
+                                                      String basePackage,
+                                                      JTextField packageTf,
+                                                      JTextField packagePathTf) {
         Module selectedModule = chooseModuleDialog(project);
         if (selectedModule == null) {
             return;
         }
-        String packageName = StringUtils.isNotBlank(packageTf.getText()) ? packageTf.getText().trim() : "";
+        String packageName = StringUtils.firstNonBlank(packageTf.getText(), basePackage, "");
         PsiPackage selectedPackage = choosePackageDialog(selectedModule, packageName);
         if (selectedPackage != null) {
             packageTf.setText(selectedPackage.getQualifiedName());
@@ -136,7 +141,8 @@ public class UIUtils {
         for (int i = 0; i < allModules.length; i++) {
             allModuleNames[i] = allModules[i].getName();
         }
-        String selectedModuleName = Messages.showEditableChooseDialog("Select a module", "", null, allModuleNames, allModuleNames[0], null);
+        String selectedModuleName = Messages.showEditableChooseDialog("Select a module", "", null, allModuleNames,
+                allModuleNames[0], null);
         if (selectedModuleName == null) {
             return null;
         }
@@ -221,7 +227,8 @@ public class UIUtils {
         if (superClassNames == null || superClassNames.length == 0) {
             return null;
         }
-        return Messages.showEditableChooseDialog("Select a superClass", "", null, superClassNames, superClassNames[0], null);
+        return Messages.showEditableChooseDialog("Select a superClass", "", null, superClassNames, superClassNames[0],
+                null);
     }
 
     /**

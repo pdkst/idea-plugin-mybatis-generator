@@ -65,6 +65,10 @@ public class CommonProperties implements Serializable {
      * 选择的框架类型
      */
     private String frameworkTypeComboBoxValue;
+    /**
+     * 表名前缀
+     */
+    private String tableNamePrefix;
 
 
     public String getAuthor() {
@@ -145,5 +149,13 @@ public class CommonProperties implements Serializable {
 
     public void setFrameworkTypeComboBoxValue(String frameworkTypeComboBoxValue) {
         this.frameworkTypeComboBoxValue = frameworkTypeComboBoxValue;
+    }
+
+    public String getTableNamePrefix() {
+        return tableNamePrefix;
+    }
+
+    public void setTableNamePrefix(String tableNamePrefix) {
+        this.tableNamePrefix = tableNamePrefix;
     }
 }

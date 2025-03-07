@@ -87,7 +87,7 @@ public interface Constant {
     /**
      * service默认文件名格式，注意 %s 会自动填充表原始实体名称
      */
-    String DEFAULT_SERVICE_NAME_FORMAT = "I%sService";
+    String DEFAULT_SERVICE_NAME_FORMAT = "%sService";
 
     /**
      * serviceImpl默认文件名格式，注意 %s 会自动填充表原始实体名称
@@ -152,6 +152,7 @@ public interface Constant {
     /**
      * mybatis plus 默认 superServiceImplClass
      */
-    String DEFAULT_MYBATIS_PLUS_SUPER_SERVICE_IMPL_CLASS = "com.baomidou.mybatisplus.extension.service.impl.ServiceImpl";
+    String DEFAULT_MYBATIS_PLUS_SUPER_SERVICE_IMPL_CLASS = "com.baomidou.mybatisplus.extension.service.impl" +
+            ".ServiceImpl";
 
 }
