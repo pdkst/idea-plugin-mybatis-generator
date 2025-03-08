@@ -10,6 +10,8 @@ import com.google.common.base.CaseFormat;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
+import io.github.pdkst.idea.plugin.common.pojo.MybatisXml;
+import io.github.pdkst.idea.plugin.generator.MybatisXmlMerger;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -66,7 +68,12 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
             if (mapperXmlProperties.isSelectedGenerateCheckBox()) {
                 String mapperXmlFile = mapperXmlProperties.getPath() + File.separator + objectMap.get(
                         "mapperXmlName") + Constant.XML_SUFFIX;
+                final MybatisXml mybatisXml = MybatisXmlMerger.parse(mapperXmlFile);
                 generatorFile(project, objectMap, objectMap.get("mapperXmlTemplatePath").toString(), mapperXmlFile);
+                // 合并xml
+                if (mybatisXml != null) {
+                    MybatisXmlMerger.merge(mapperXmlFile, mybatisXml);
+                }
             }
 
             // service
