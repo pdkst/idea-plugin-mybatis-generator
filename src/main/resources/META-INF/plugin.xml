@@ -1,7 +1,8 @@
 <idea-plugin>
     <id>idea-plugin-mybatis-generator</id>
     <name>MyBatisCodeGenerator</name>
-    <vendor email="caojx_wy@163.com" url="https://github.com/caojx-git/idea-plugin-mybatis-generator">caojx</vendor>
+    <vendor email="caojx_wy@163.com" url="https://github.com/caojx-git/idea-plugin-mybatis-generator">caojx,pdkst
+    </vendor>
 
     <description><![CDATA[
         MyBatis CodeGenerator <br>
@@ -33,6 +34,16 @@
         more information, you can see <a href="https://github.com/caojx-git/idea-plugin-mybatis-generator">https://github.com/caojx-git/idea-plugin-mybatis-generator</a>
     ]]></description>
 
+    <change-notes><![CDATA[
+        Since 2025年3月7日 by pdkst<br>
+        1. 添加表前缀<br>
+        2. 表名查找前后增加%<br>
+        3. 包名选择默认从basePackage开始<br>
+        <br>
+        Since 2025年3月8日23:58:29 by pdkst<br>
+        1. 增加合并原来的mybatis xml<br>
+    ]]></change-notes>
+
     <!--版本兼容从2019.3开始
     see https://plugins.jetbrains.com/docs/intellij/build-number-ranges.html?from=jetbrains.org
     -->
@@ -51,12 +62,13 @@
         <projectService serviceImplementation="com.caojx.idea.plugin.persistent.PersistentStateService"/>
 
         <!--工具栏，暂时去掉侧边工具栏，生成代码是低频操作，没必要占用侧边工具栏-->
-<!--        <toolWindow id="MyBatisCodeGenerator" factoryClass="com.caojx.idea.plugin.ui.GeneratorWindowFactory" anchor="right"/>-->
+        <!--        <toolWindow id="MyBatisCodeGenerator" factoryClass="com.caojx.idea.plugin.ui.GeneratorWindowFactory" anchor="right"/>-->
     </extensions>
 
     <actions>
         <!-- Add your actions here  入口 Tools->MyBatisCodeGenerator -->
-        <action id="MyBatisCodeGeneratorId" class="com.caojx.idea.plugin.action.GeneratorAction" text="MyBatisCodeGenerator" description="生成代码">
+        <action id="MyBatisCodeGeneratorId" class="com.caojx.idea.plugin.action.GeneratorAction"
+                text="MyBatisCodeGenerator" description="生成代码">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
     </actions>
