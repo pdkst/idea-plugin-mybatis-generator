@@ -19,12 +19,7 @@ import java.util.List;
  * @since 2025/03/08
  */
 public class MybatisXmlMerger {
-    private static final String[] DEFAULT_METHOD_NAMES = new String[]{"BaseResultMap", "Example_Where_Clause",
-            "Update_By_Example_Where_Clause", "Base_Column_List", "selectByExampleWithBLOBs", "selectByExample",
-            "selectByPrimaryKey", "deleteByPrimaryKey", "deleteByExample", "insert", "insertSelective",
-            "updateByPrimaryKeySelective", "updateByPrimaryKeyWithBLOBs", "updateByPrimaryKey",
-            "updateByExampleSelective", "updateByExampleWithBLOBs", "updateByExample", "countByExample",
-            "countByPrimaryKey"};
+    private static final String[] DEFAULT_METHOD_NAMES = new String[]{"BaseResultMap", "ResultMapWithBLOBs", "Blob_Column_List", "Example_Where_Clause", "Update_By_Example_Where_Clause", "Base_Column_List", "selectByExampleWithBLOBs", "selectByExample", "selectByPrimaryKey", "deleteByPrimaryKey", "deleteByExample", "insert", "insertSelective", "updateByPrimaryKeySelective", "updateByPrimaryKeyWithBLOBs", "updateByPrimaryKey", "updateByExampleSelective", "updateByExampleWithBLOBs", "updateByExample", "countByExample", "countByPrimaryKey"};
 
     public static MybatisXml parse(String xmlFile) {
         try {// 解析xml文件
