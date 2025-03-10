@@ -1,5 +1,7 @@
 package com.caojx.idea.plugin.common.properties;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -8,6 +10,7 @@ import java.io.Serializable;
  * @author caojx
  * @date 2022/4/10 12:55 PM
  */
+@Data
 public class GeneratorProperties implements Serializable {
 
     /**
@@ -41,63 +44,18 @@ public class GeneratorProperties implements Serializable {
     private ServiceImplProperties serviceImplProperties = new ServiceImplProperties();
 
     /**
+     * facade配置
+     */
+    private FacadeProperties facadeProperties = new FacadeProperties();
+
+    /**
+     * facadeImpl配置
+     */
+    private FacadeImplProperties facadeImplProperties = new FacadeImplProperties();
+
+    /**
      * controller配置
      */
     private ControllerProperties controllerProperties = new ControllerProperties();
 
-    public CommonProperties getCommonProperties() {
-        return commonProperties;
-    }
-
-    public void setCommonProperties(CommonProperties commonProperties) {
-        this.commonProperties = commonProperties;
-    }
-
-    public EntityProperties getEntityProperties() {
-        return entityProperties;
-    }
-
-    public void setEntityProperties(EntityProperties entityProperties) {
-        this.entityProperties = entityProperties;
-    }
-
-    public MapperProperties getMapperProperties() {
-        return mapperProperties;
-    }
-
-    public void setMapperProperties(MapperProperties mapperProperties) {
-        this.mapperProperties = mapperProperties;
-    }
-
-    public MapperXmlProperties getMapperXmlProperties() {
-        return mapperXmlProperties;
-    }
-
-    public void setMapperXmlProperties(MapperXmlProperties mapperXmlProperties) {
-        this.mapperXmlProperties = mapperXmlProperties;
-    }
-
-    public ServiceProperties getServiceProperties() {
-        return serviceProperties;
-    }
-
-    public void setServiceProperties(ServiceProperties serviceProperties) {
-        this.serviceProperties = serviceProperties;
-    }
-
-    public ServiceImplProperties getServiceImplProperties() {
-        return serviceImplProperties;
-    }
-
-    public void setServiceImplProperties(ServiceImplProperties serviceImplProperties) {
-        this.serviceImplProperties = serviceImplProperties;
-    }
-
-    public ControllerProperties getControllerProperties() {
-        return controllerProperties;
-    }
-
-    public void setControllerProperties(ControllerProperties controllerProperties) {
-        this.controllerProperties = controllerProperties;
-    }
 }

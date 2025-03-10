@@ -95,6 +95,16 @@ public interface Constant {
     String DEFAULT_SERVICE_IMPL_NAME_FORMAT = "%sServiceImpl";
 
     /**
+     * facade默认文件名格式，注意 %s 会自动填充表原始实体名称
+     */
+    String DEFAULT_FACADE_NAME_FORMAT = "%sFacade";
+
+    /**
+     * facadeImpl默认文件名格式，注意 %s 会自动填充表原始实体名称
+     */
+    String DEFAULT_FACADE_IMPL_NAME_FORMAT = "%sFacadeImpl";
+
+    /**
      * controller默认文件名格式，注意 %s 会自动填充表原始实体名称
      */
     String DEFAULT_CONTROLLER_NAME_FORMAT = "%sController";
@@ -130,6 +140,16 @@ public interface Constant {
     String SERVICE_IMPL_TEMPLATE_PATH = "/templates/serviceImpl.ftl";
 
     /**
+     * facade模板路径
+     */
+    String FACADE_TEMPLATE_PATH = "/templates/facade.ftl";
+
+    /**
+     * facadeImpl 模板路径
+     */
+    String FACADE_IMPL_TEMPLATE_PATH = "/templates/facadeImpl.ftl";
+
+    /**
      * controller模板路径
      */
     String CONTROLLER_TEMPLATE_PATH = "/templates/controller.ftl";
@@ -152,7 +172,6 @@ public interface Constant {
     /**
      * mybatis plus 默认 superServiceImplClass
      */
-    String DEFAULT_MYBATIS_PLUS_SUPER_SERVICE_IMPL_CLASS = "com.baomidou.mybatisplus.extension.service.impl" +
-            ".ServiceImpl";
+    String DEFAULT_MYBATIS_PLUS_SUPER_SERVICE_IMPL_CLASS = "com.baomidou.mybatisplus.extension.service.impl" + ".ServiceImpl";
 
 }
