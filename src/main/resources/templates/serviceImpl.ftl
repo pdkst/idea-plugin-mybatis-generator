@@ -14,6 +14,8 @@ import ${mapperFullClassName};
 </#if>
 import ${superServiceImplClass};
 </#if>
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,7 +24,9 @@ import org.springframework.stereotype.Service;
  * @author ${author!}
  * @since ${.now?string("yyyy-MM-dd HH:mm")}
  */
+@Slf4j
 @Service
+@RequiredArgsConstructor
 <#if superServiceImplClass?? && superServiceImplClass !="">
 public class ${serviceImplName} extends ${superServiceImplClassName}<${mapperName}, ${entityName}> implements ${serviceName} {
 <#else>

@@ -14,7 +14,9 @@ import ${mapperFullClassName};
 </#if>
 import ${superFacadeImplClass};
 </#if>
-import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * ${table.comment!} 服务实现类
@@ -22,7 +24,9 @@ import org.springframework.stereotype.Service;
  * @author ${author!}
  * @since ${.now?string("yyyy-MM-dd HH:mm")}
  */
-@Service
+@Slf4j
+@Component
+@RequiredArgsConstructor
 <#if superFacadeImplClass?? && superFacadeImplClass !="">
 public class ${facadeImplName} extends ${superFacadeImplClassName}<${mapperName}, ${entityName}> implements ${facadeName} {
 <#else>
