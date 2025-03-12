@@ -40,6 +40,14 @@ intellij {
 }
 patchPluginXml {
     changeNotes = """
+    Since 2025年3月7日 by pdkst<br>
+    1. 添加表前缀<br>
+    2. 表名查找前后增加%<br>
+    3. 包名选择默认从basePackage开始<br>
+    <br>
+    Since 2025年3月8日23:58:29 by pdkst<br>
+    1. 增加合并原来的mybatis xml<br>
+    
       v1.3.7<br>
       <em>1.save database configuration to directory user.home/.myBatisCodeGenerator/ext-config.json </em><br>
       
