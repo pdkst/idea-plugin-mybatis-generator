@@ -273,6 +273,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         List<DatabaseWithOutPwd> extDatabases = PersistentExtConfig.loadDatabase();
         initDatabaseComBox(extDatabases, commonProperties.getDatabaseComboBoxValue());
         tableNameRegexTf.setText("");
+        tableNameStripTf.setText(commonProperties.getTableNamePrefix());
 
         // entity 设置
         EntityProperties entityProperties = generatorProperties.getEntityProperties();

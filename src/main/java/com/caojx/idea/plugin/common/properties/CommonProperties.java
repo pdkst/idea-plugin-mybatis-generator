@@ -1,6 +1,7 @@
 package com.caojx.idea.plugin.common.properties;
 
 import com.caojx.idea.plugin.common.pojo.DatabaseWithOutPwd;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
  * @author caojx
  * @date 2022/4/10 12:20 PM
  */
+@Data
 public class CommonProperties implements Serializable {
 
 
@@ -69,93 +71,4 @@ public class CommonProperties implements Serializable {
      * 表名前缀
      */
     private String tableNamePrefix;
-
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public String getModuleName() {
-        return moduleName;
-    }
-
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public String getModulePath() {
-        return modulePath;
-    }
-
-    public void setModulePath(String modulePath) {
-        this.modulePath = modulePath;
-    }
-
-    public String getBasePackage() {
-        return basePackage;
-    }
-
-    public void setBasePackage(String basePackage) {
-        this.basePackage = basePackage;
-    }
-
-    public String getBasePath() {
-        return basePath;
-    }
-
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
-    }
-
-    public String getEntityRelativePackage() {
-        return entityRelativePackage;
-    }
-
-    public void setEntityRelativePackage(String entityRelativePackage) {
-        this.entityRelativePackage = entityRelativePackage;
-    }
-
-    public List<DatabaseWithOutPwd> getDatabases() {
-        return databases;
-    }
-
-    public void setDatabases(List<DatabaseWithOutPwd> databases) {
-        this.databases = databases;
-    }
-
-    public String getDatabaseComboBoxValue() {
-        return databaseComboBoxValue;
-    }
-
-    public void setDatabaseComboBoxValue(String databaseComboBoxValue) {
-        this.databaseComboBoxValue = databaseComboBoxValue;
-    }
-
-    public List<String> getFrameworkTypeComboBoxValues() {
-        return frameworkTypeComboBoxValues;
-    }
-
-    public void setFrameworkTypeComboBoxValues(List<String> frameworkTypeComboBoxValues) {
-        this.frameworkTypeComboBoxValues = frameworkTypeComboBoxValues;
-    }
-
-    public String getFrameworkTypeComboBoxValue() {
-        return frameworkTypeComboBoxValue;
-    }
-
-    public void setFrameworkTypeComboBoxValue(String frameworkTypeComboBoxValue) {
-        this.frameworkTypeComboBoxValue = frameworkTypeComboBoxValue;
-    }
-
-    public String getTableNamePrefix() {
-        return tableNamePrefix;
-    }
-
-    public void setTableNamePrefix(String tableNamePrefix) {
-        this.tableNamePrefix = tableNamePrefix;
-    }
 }

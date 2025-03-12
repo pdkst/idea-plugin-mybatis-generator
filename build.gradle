@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.caojx'
-version '1.3.7'
+version '1.3.7.20250312'
 
 repositories {
     maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
