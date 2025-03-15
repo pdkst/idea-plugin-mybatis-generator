@@ -183,11 +183,12 @@ public class MySQLDBHelper {
                 ResultSet rs = metaData.getTables(null, conn.getSchema(), tableName, new String[]{"TABLE"});
                 while (rs.next()) {
                     // 表注释
+                    String tableNameResult = rs.getString("TABLE_NAME");
                     String remarks = rs.getString("REMARKS");
                     // 列列表
-                    List<TableField> fields = getAllTableField(tableName, conn);
+                    List<TableField> fields = getAllTableField(tableNameResult, conn);
                     // 返回表信息
-                    TableInfo tableInfo = new TableInfo(tableName, remarks, fields);
+                    TableInfo tableInfo = new TableInfo(tableNameResult, remarks, fields);
                     tableInfoList.add(tableInfo);
                 }
             }

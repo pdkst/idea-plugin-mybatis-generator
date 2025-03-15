@@ -2,6 +2,7 @@ package com.caojx.idea.plugin.common.pojo;
 
 import com.caojx.idea.plugin.common.utils.JdbcTypeMappingHandler;
 import com.google.common.base.CaseFormat;
+import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ import java.util.Map;
  * @author caojx
  * @date 2022/4/10 4:00 PM
  */
+@Data
 public class TableField implements Serializable {
 
     /**
@@ -94,92 +96,12 @@ public class TableField implements Serializable {
         this.blobFlag = jdbcTypeMappingHandler.isBLOBColumn(sqlType);
     }
 
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Class<?> getType() {
-        return type;
-    }
-
-    public void setType(Class<?> type) {
-        this.type = type;
-    }
-
-    public String getJdbcTypeName() {
-        return jdbcTypeName;
-    }
-
-    public void setJdbcTypeName(String jdbcTypeName) {
-        this.jdbcTypeName = jdbcTypeName;
-    }
-
-    public boolean isPrimaryKeyFlag() {
-        return primaryKeyFlag;
-    }
-
-    public void setPrimaryKeyFlag(boolean primaryKeyFlag) {
-        this.primaryKeyFlag = primaryKeyFlag;
-    }
-
-    public boolean isJdbcDateFlag() {
-        return jdbcDateFlag;
-    }
-
-    public void setJdbcDateFlag(boolean jdbcDateFlag) {
-        this.jdbcDateFlag = jdbcDateFlag;
-    }
-
-    public boolean isJdbcTimeFlag() {
-        return jdbcTimeFlag;
-    }
-
-    public void setJdbcTimeFlag(boolean jdbcTimeFlag) {
-        this.jdbcTimeFlag = jdbcTimeFlag;
-    }
-
-    public boolean isBlobFlag() {
-        return blobFlag;
-    }
-
-    public void setBlobFlag(boolean blobFlag) {
-        this.blobFlag = blobFlag;
-    }
-
     public String getTypeSimpleName() {
         return type.getSimpleName();
     }
 
     public String getFullClassName() {
         return type.getName();
-    }
-
-    public Map<JDBCType, Class<?>> getCustomerJdbcTypeMappingMap() {
-        return customerJdbcTypeMappingMap;
-    }
-
-    public void setCustomerJdbcTypeMappingMap(Map<JDBCType, Class<?>> customerJdbcTypeMappingMap) {
-        this.customerJdbcTypeMappingMap = customerJdbcTypeMappingMap;
     }
 
     public boolean isImport() {

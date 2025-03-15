@@ -29,7 +29,10 @@ dependencies {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnit()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
