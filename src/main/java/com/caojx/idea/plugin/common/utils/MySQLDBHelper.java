@@ -91,41 +91,6 @@ public class MySQLDBHelper {
     }
 
     /**
-     * 获取数据库中所有的表名
-     *
-     * @return 表名列表
-     */
-    public List<String> getAllTableName() {
-        return getTableName("%");
-    }
-
-    /**
-     * 获取数据库表明
-     *
-     * @param tableNamePattern 表名表达式
-     * @return 表名列表
-     */
-    public List<String> getTableName(String tableNamePattern) {
-        Connection connection = this.getConnection();
-        try {
-            DatabaseMetaData metaData = connection.getMetaData();
-            ResultSet resultSet = metaData.getTables(null, connection.getSchema(), tableNamePattern, new String[]{"TABLE"});
-            List<String> tableNames = new ArrayList<>();
-            while (resultSet.next()) {
-                if (resultSet.getString(4) != null && resultSet.getString(4).equalsIgnoreCase("TABLE")) {
-                    String tableName = resultSet.getString(3).toLowerCase();
-                    tableNames.add(tableName);
-                }
-            }
-            return tableNames;
-        } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            closeConnection(connection);
-        }
-    }
-
-    /**
      * 获取表信息
      *
      * @param tableName 表名

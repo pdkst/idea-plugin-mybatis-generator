@@ -27,9 +27,6 @@ public class MySQLDBHelperTest {
             System.out.println(tableInfo);
         }
 
-        List<String> allTableName = mySQLDBHelper.getAllTableName();
-        System.out.println(allTableName);
-
         String s = mySQLDBHelper.testDatabase();
         System.out.println(s);
     }
