@@ -546,16 +546,17 @@ public class GeneratorSettingUI extends DialogWrapper {
 
                 // 获取表名列表
                 String tableNamePattern = StringUtils.isBlank(tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
-                List<TableInfo> tableList = dbHelper.getTableInfos(tableNamePattern);
+                List<TableInfo> tableList = dbHelper.getTableInfosWithoutFields(tableNamePattern);
 
                 // 重置表数据
                 restTableData();
 
                 // 追加行数据
                 table.setModel(TABLE_MODEL);
-                for (int i = 0; i < tableList.size(); i++) {
+                int rows = Math.min(tableList.size(), 30);
+                for (int i = 0; i < rows; i++) {
                     TableInfo tableInfo = tableList.get(i);
-                    String[] row = {Boolean.FALSE.toString(), tableInfo.getName(), tableInfo.getComment()};
+                    String[] row = {null, tableInfo.getName(), tableInfo.getComment()};
                     TABLE_MODEL.addRow(row);
                 }
 
@@ -616,7 +617,6 @@ public class GeneratorSettingUI extends DialogWrapper {
         generatorBtn.addActionListener(e -> {
             // 获取代码生成配置
             GeneratorProperties generatorProperties = getGeneratorProperties();
-
             // 获取表列表
             if (CollectionUtils.isEmpty(selectedTableNames)) {
                 MyMessages.showWarningDialog(project, "请选择要生成的表", "info");
@@ -927,7 +927,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         }
 
         MySQLDBHelper mySQLDBHelper = new MySQLDBHelper(database, newCustomerJdbcTypeMappingMap);
-        return mySQLDBHelper.getTableInfos(tableNames);
+        return mySQLDBHelper.getTableInfos(tableNames, true);
     }
 
     /**

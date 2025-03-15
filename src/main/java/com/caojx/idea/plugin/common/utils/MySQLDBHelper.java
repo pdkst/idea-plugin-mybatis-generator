@@ -4,13 +4,7 @@ import com.caojx.idea.plugin.common.pojo.DatabaseWithPwd;
 import com.caojx.idea.plugin.common.pojo.TableField;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.JDBCType;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 /**
@@ -45,7 +39,7 @@ public class MySQLDBHelper {
     public MySQLDBHelper(DatabaseWithPwd databaseWithPwd, Map<JDBCType, Class<?>> customerJdbcTypeMappingMap) {
         this.databaseWithPwd = databaseWithPwd;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -165,7 +159,11 @@ public class MySQLDBHelper {
      * @return 表信息
      */
     public List<TableInfo> getTableInfos(String... tableName) {
-        return getTableInfos(List.of(tableName));
+        return getTableInfos(List.of(tableName), true);
+    }
+
+    public List<TableInfo> getTableInfosWithoutFields(String... tableName) {
+        return getTableInfos(List.of(tableName), false);
     }
 
     /**
@@ -174,19 +172,22 @@ public class MySQLDBHelper {
      * @param tableNameList 表名
      * @return 表信息
      */
-    public List<TableInfo> getTableInfos(Collection<String> tableNameList) {
+    public List<TableInfo> getTableInfos(Collection<String> tableNameList, boolean withFields) {
         Connection conn = getConnection();
         try {
             DatabaseMetaData metaData = conn.getMetaData();
             List<TableInfo> tableInfoList = new ArrayList<>();
             for (String tableName : tableNameList) {
-                ResultSet rs = metaData.getTables(null, conn.getSchema(), tableName, new String[]{"TABLE"});
+                ResultSet rs = metaData.getTables(null, databaseWithPwd.getDatabaseName(), tableName, new String[]{"TABLE"});
                 while (rs.next()) {
                     // 表注释
                     String tableNameResult = rs.getString("TABLE_NAME");
                     String remarks = rs.getString("REMARKS");
                     // 列列表
-                    List<TableField> fields = getAllTableField(tableNameResult, conn);
+                    List<TableField> fields = new ArrayList<>();
+                    if (withFields) {
+                        fields = getAllTableField(tableNameResult, conn);
+                    }
                     // 返回表信息
                     TableInfo tableInfo = new TableInfo(tableNameResult, remarks, fields);
                     tableInfoList.add(tableInfo);
