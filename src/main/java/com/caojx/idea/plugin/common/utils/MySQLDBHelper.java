@@ -131,33 +131,6 @@ public class MySQLDBHelper {
      * @param tableName 表名
      * @return 表信息
      */
-    public TableInfo getTableInfo(String tableName) {
-        Connection conn = getConnection();
-        try {
-            DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getTables(null, conn.getSchema(), tableName, new String[]{"TABLE"});
-            if (rs.next()) {
-                // 表注释
-                String remarks = rs.getString("REMARKS");
-                // 列列表
-                List<TableField> fields = getAllTableField(tableName, conn);
-                // 返回表信息
-                return new TableInfo(tableName, remarks, fields);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        } finally {
-            closeConnection(conn);
-        }
-        return null;
-    }
-
-    /**
-     * 获取表信息
-     *
-     * @param tableName 表名
-     * @return 表信息
-     */
     public List<TableInfo> getTableInfos(String... tableName) {
         return getTableInfos(List.of(tableName), true);
     }
@@ -178,7 +151,7 @@ public class MySQLDBHelper {
             DatabaseMetaData metaData = conn.getMetaData();
             List<TableInfo> tableInfoList = new ArrayList<>();
             for (String tableName : tableNameList) {
-                ResultSet rs = metaData.getTables(null, databaseWithPwd.getDatabaseName(), tableName, new String[]{"TABLE"});
+                ResultSet rs = metaData.getTables(conn.getCatalog(), conn.getSchema(), tableName, new String[]{"TABLE"});
                 while (rs.next()) {
                     // 表注释
                     String tableNameResult = rs.getString("TABLE_NAME");
