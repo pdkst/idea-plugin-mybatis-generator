@@ -5,6 +5,7 @@ import io.github.pdkst.idea.plugin.common.pojo.MybatisXml;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 
@@ -82,7 +83,7 @@ public class MybatisXmlMerger {
 
     private static void writeDocument(Document document, String xmlFile) throws IOException {
         // 将合并后的 XML 写入文件
-        XMLWriter writer = new XMLWriter(new FileWriter(xmlFile));
+        XMLWriter writer = new XMLWriter(new FileWriter(xmlFile), OutputFormat.createPrettyPrint());
         writer.write(document);
         writer.close();
     }

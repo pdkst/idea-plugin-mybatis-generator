@@ -5,9 +5,6 @@ package ${entityPackage};
 <#if isSelectedSerializableCheckBox>
 import java.io.Serializable;
 </#if>
-<#list entityImportPackages as import>
-import ${import};
-</#list>
 <#if isSelectedDataCheckBox>
 import lombok.Data;
 </#if>
@@ -20,6 +17,9 @@ import lombok.NoArgsConstructor;
 <#if isSelectedAllArgsConstructorCheckBox>
 import lombok.AllArgsConstructor;
 </#if>
+<#list entityImportPackages as import>
+import ${import};
+</#list>
 <#if table.havePrimaryKey && frameworkType =="TkMyBatis">
 import javax.persistence.*;
 </#if>
