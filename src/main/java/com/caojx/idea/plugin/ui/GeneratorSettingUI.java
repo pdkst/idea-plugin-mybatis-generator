@@ -187,7 +187,7 @@ public class GeneratorSettingUI extends DialogWrapper {
     /**
      * 表头
      */
-    public static String[] TABLE_COLUMN_NAME = {"", "表名"};
+    public static String[] TABLE_COLUMN_NAME = {"", "表名", "注释"};
     public static DefaultTableModel TABLE_MODEL = new DefaultTableModel(null, TABLE_COLUMN_NAME);
 
     /**
@@ -546,16 +546,16 @@ public class GeneratorSettingUI extends DialogWrapper {
 
                 // 获取表名列表
                 String tableNamePattern = StringUtils.isBlank(tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
-                List<String> tableNames = dbHelper.getTableName(tableNamePattern);
+                List<TableInfo> tableList = dbHelper.getTableInfos(tableNamePattern);
 
                 // 重置表数据
                 restTableData();
 
                 // 追加行数据
                 table.setModel(TABLE_MODEL);
-                for (int i = 0; i < tableNames.size(); i++) {
-                    String[] row = new String[2];
-                    row[1] = tableNames.get(i);
+                for (int i = 0; i < tableList.size(); i++) {
+                    TableInfo tableInfo = tableList.get(i);
+                    String[] row = {Boolean.FALSE.toString(), tableInfo.getName(), tableInfo.getComment()};
                     TABLE_MODEL.addRow(row);
                 }
 
@@ -927,11 +927,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         }
 
         MySQLDBHelper mySQLDBHelper = new MySQLDBHelper(database, newCustomerJdbcTypeMappingMap);
-        List<TableInfo> tables = new ArrayList<>();
-        for (String tableName : tableNames) {
-            tables.add(mySQLDBHelper.getTableInfo(tableName));
-        }
-        return tables;
+        return mySQLDBHelper.getTableInfos(tableNames);
     }
 
     /**

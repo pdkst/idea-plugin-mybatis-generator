@@ -11,7 +11,7 @@ import java.util.List;
 public class MySQLDBHelperTest {
 
     @Test
-    public void testGetTableInfo(){
+    public void testGetTableInfo() {
         DatabaseWithPwd database = new DatabaseWithPwd();
         database.setDatabaseType("mysql");
         database.setHost("127.0.0.1");
@@ -22,8 +22,10 @@ public class MySQLDBHelperTest {
 
         MySQLDBHelper mySQLDBHelper = new MySQLDBHelper(database, new HashMap<>(4));
 
-        TableInfo tableInfo = mySQLDBHelper.getTableInfo("task");
-        System.out.println(tableInfo);
+        List<TableInfo> tableInfos = mySQLDBHelper.getTableInfos("task");
+        for (TableInfo tableInfo : tableInfos) {
+            System.out.println(tableInfo);
+        }
 
         List<String> allTableName = mySQLDBHelper.getAllTableName();
         System.out.println(allTableName);

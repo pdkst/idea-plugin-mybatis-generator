@@ -11,12 +11,7 @@ import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * MySQL数据库工具类
@@ -113,14 +108,14 @@ public class MySQLDBHelper {
     /**
      * 获取数据库表明
      *
-     * @param tableNamePattern 表明表达式
+     * @param tableNamePattern 表名表达式
      * @return 表名列表
      */
     public List<String> getTableName(String tableNamePattern) {
         Connection connection = this.getConnection();
         try {
             DatabaseMetaData metaData = connection.getMetaData();
-            ResultSet resultSet = metaData.getTables(null, null, tableNamePattern, new String[]{"TABLE"});
+            ResultSet resultSet = metaData.getTables(null, connection.getSchema(), tableNamePattern, new String[]{"TABLE"});
             List<String> tableNames = new ArrayList<>();
             while (resultSet.next()) {
                 if (resultSet.getString(4) != null && resultSet.getString(4).equalsIgnoreCase("TABLE")) {
@@ -146,7 +141,7 @@ public class MySQLDBHelper {
         Connection conn = getConnection();
         try {
             DatabaseMetaData metaData = conn.getMetaData();
-            ResultSet rs = metaData.getTables(null, "", tableName, new String[]{"TABLE"});
+            ResultSet rs = metaData.getTables(null, conn.getSchema(), tableName, new String[]{"TABLE"});
             if (rs.next()) {
                 // 表注释
                 String remarks = rs.getString("REMARKS");
@@ -164,13 +159,54 @@ public class MySQLDBHelper {
     }
 
     /**
+     * 获取表信息
+     *
+     * @param tableName 表名
+     * @return 表信息
+     */
+    public List<TableInfo> getTableInfos(String... tableName) {
+        return getTableInfos(List.of(tableName));
+    }
+
+    /**
+     * 获取表信息
+     *
+     * @param tableNameList 表名
+     * @return 表信息
+     */
+    public List<TableInfo> getTableInfos(Collection<String> tableNameList) {
+        Connection conn = getConnection();
+        try {
+            DatabaseMetaData metaData = conn.getMetaData();
+            List<TableInfo> tableInfoList = new ArrayList<>();
+            for (String tableName : tableNameList) {
+                ResultSet rs = metaData.getTables(null, conn.getSchema(), tableName, new String[]{"TABLE"});
+                while (rs.next()) {
+                    // 表注释
+                    String remarks = rs.getString("REMARKS");
+                    // 列列表
+                    List<TableField> fields = getAllTableField(tableName, conn);
+                    // 返回表信息
+                    TableInfo tableInfo = new TableInfo(tableName, remarks, fields);
+                    tableInfoList.add(tableInfo);
+                }
+            }
+            return tableInfoList;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        } finally {
+            closeConnection(conn);
+        }
+    }
+
+    /**
      * 获取所有的列名
      *
      * @param tableName  表名
      * @param connection 连接
      * @return 列列表
      */
-    public List<TableField> getAllTableField(String tableName, Connection connection) {
+    private List<TableField> getAllTableField(String tableName, Connection connection) {
         try {
             DatabaseMetaData metaData = connection.getMetaData();
 

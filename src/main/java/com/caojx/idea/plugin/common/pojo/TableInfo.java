@@ -1,5 +1,7 @@
 package com.caojx.idea.plugin.common.pojo;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -10,6 +12,7 @@ import java.util.stream.Collectors;
  * @author caojx
  * @date 2022/4/10 4:00 PM
  */
+@Data
 public class TableInfo implements Serializable {
 
     /**
@@ -105,94 +108,6 @@ public class TableInfo implements Serializable {
         this.notBlobFields = Optional.ofNullable(fields).orElse(new ArrayList<>()).stream().filter(field -> !field.isBlobFlag()).collect(Collectors.toList());
     }
 
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public List<TableField> getFields() {
-        return fields;
-    }
-
-    public void setFields(List<TableField> fields) {
-        this.fields = fields;
-    }
-
-    public boolean isHavePrimaryKey() {
-        return havePrimaryKey;
-    }
-
-    public void setHavePrimaryKey(boolean havePrimaryKey) {
-        this.havePrimaryKey = havePrimaryKey;
-    }
-
-    public String getPrimaryKeyName() {
-        return primaryKeyName;
-    }
-
-    public void setPrimaryKeyName(String primaryKeyName) {
-        this.primaryKeyName = primaryKeyName;
-    }
-
-    public Class<?> getPrimaryKeyType() {
-        return primaryKeyType;
-    }
-
-    public void setPrimaryKeyType(Class<?> primaryKeyType) {
-        this.primaryKeyType = primaryKeyType;
-    }
-
-    public boolean isHaveJdbcDateField() {
-        return haveJdbcDateField;
-    }
-
-    public void setHaveJdbcDateField(boolean haveJdbcDateField) {
-        this.haveJdbcDateField = haveJdbcDateField;
-    }
-
-    public boolean isHaveJdbcTimeField() {
-        return haveJdbcTimeField;
-    }
-
-    public void setHaveJdbcTimeField(boolean haveJdbcTimeField) {
-        this.haveJdbcTimeField = haveJdbcTimeField;
-    }
-
-    public boolean isHaveBlobField() {
-        return haveBlobField;
-    }
-
-    public void setHaveBlobField(boolean haveBlobField) {
-        this.haveBlobField = haveBlobField;
-    }
-
-    public List<TableField> getBlobFields() {
-        return blobFields;
-    }
-
-    public void setBlobFields(List<TableField> blobFields) {
-        this.blobFields = blobFields;
-    }
-
-    public List<TableField> getNotBlobFields() {
-        return notBlobFields;
-    }
-
-    public void setNotBlobFields(List<TableField> notBlobFields) {
-        this.notBlobFields = notBlobFields;
-    }
 
     /**
      * 获取实体导包
