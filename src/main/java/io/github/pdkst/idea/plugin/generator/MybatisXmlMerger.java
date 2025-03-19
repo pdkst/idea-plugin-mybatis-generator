@@ -8,6 +8,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.dom4j.tree.DefaultText;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -83,7 +84,7 @@ public class MybatisXmlMerger {
 
     private static void writeDocument(Document document, String xmlFile) throws IOException {
         // 将合并后的 XML 写入文件
-        XMLWriter writer = new XMLWriter(new FileWriter(xmlFile), OutputFormat.createPrettyPrint());
+        XMLWriter writer = new XMLWriter(new FileWriter(xmlFile));
         writer.write(document);
         writer.close();
     }
@@ -94,8 +95,11 @@ public class MybatisXmlMerger {
             if (mybatisMethod.isDefaultMethod()) {
                 continue;
             }
+            // 添加换行
+            rootElement.add(new DefaultText("\n  "));
             rootElement.add(mybatisMethod.getElement());
         }
+        rootElement.add(new DefaultText("\n"));
     }
 
     private static Document parseDocument(String xmlFile) throws DocumentException {
