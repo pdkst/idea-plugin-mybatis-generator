@@ -68,7 +68,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
                 // 合并xml
                 if (mybatisXml != null) {
                     MybatisXmlMerger.merge(mapperXmlFile, mybatisXml);
-                    refreshFile(mapperXmlFile);
+                    refreshVirtualFile(mapperXmlFile);
                 }
             }
 
@@ -257,14 +257,14 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
             // 生成文件
             freemarkerTemplateEngine.writer(objectMap, templatePath, outputFile);
 
-            refreshFile(outputFile);
+            refreshVirtualFile(outputFile);
         } catch (Exception e) {
             MyMessages.showErrorNotify(project, outputFile + "文件生成失败" + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public static void refreshFile(String outputFile) {
+    public static void refreshVirtualFile(String outputFile) {
         // 刷新文件
         VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(new File(outputFile));
         if (Objects.nonNull(virtualFile)) {
