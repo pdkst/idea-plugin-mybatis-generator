@@ -9,7 +9,7 @@ import org.dom4j.Element;
  */
 @Data
 public class MybatisMethod {
-    private boolean defaultMethod;
     private String id;
+    private String name;
     private Element element;
 }

@@ -5,7 +5,6 @@ import io.github.pdkst.idea.plugin.common.pojo.MybatisXml;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.dom4j.tree.DefaultText;
@@ -21,47 +20,39 @@ import java.util.List;
  * @since 2025/03/08
  */
 public class MybatisXmlMerger {
-    private static final String[] DEFAULT_METHOD_NAMES = new String[]{"BaseResultMap", "ResultMapWithBLOBs", "Blob_Column_List", "Example_Where_Clause", "Update_By_Example_Where_Clause", "Base_Column_List", "selectByExampleWithBLOBs", "selectByExample", "selectByPrimaryKey", "deleteByPrimaryKey", "deleteByExample", "insert", "insertSelective", "updateByPrimaryKeySelective", "updateByPrimaryKeyWithBLOBs", "updateByPrimaryKey", "updateByExampleSelective", "updateByExampleWithBLOBs", "updateByExample", "countByExample", "countByPrimaryKey"};
 
     public static MybatisXml parse(String xmlFile) {
-        try {// 解析xml文件
+        try {
+            // 解析xml文件
             final Document document = parseDocument(xmlFile);
             if (document == null) {
                 return null;
             }
-            // 获取根元素
-            Element rootElement = document.getRootElement();
-            final List<MybatisMethod> methods = new ArrayList<>();
-            for (Element element : rootElement.elements()) {
-                final MybatisMethod mybatisMethod = parseXmlMethod(element);
-                if (mybatisMethod == null) {
-                    continue;
-                }
-                methods.add(mybatisMethod);
-            }
-            return new MybatisXml(methods);
+            return parse(document);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
+    private static MybatisXml parse(Document document) {
+        // 获取根元素
+        Element rootElement = document.getRootElement();
+        final List<MybatisMethod> methods = new ArrayList<>();
+        for (Element element : rootElement.elements()) {
+            final MybatisMethod mybatisMethod = parseXmlMethod(element);
+            methods.add(mybatisMethod);
+        }
+        return new MybatisXml(methods);
+    }
+
     private static MybatisMethod parseXmlMethod(Element element) {
         final String id = element.attributeValue("id");
         final MybatisMethod mybatisMethod = new MybatisMethod();
-        mybatisMethod.setDefaultMethod(isDefaultMethod(id));
         mybatisMethod.setId(id);
+        mybatisMethod.setName(element.getName());
         mybatisMethod.setElement(element.createCopy());
         return mybatisMethod;
-    }
-
-    private static boolean isDefaultMethod(String id) {
-        for (String defaultMethodName : DEFAULT_METHOD_NAMES) {
-            if (defaultMethodName.equals(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static void merge(String xmlFile, MybatisXml mybatisXml) {
@@ -91,8 +82,9 @@ public class MybatisXmlMerger {
 
     private static void mergeToDocument(MybatisXml mybatisXml, Document document) {
         Element rootElement = document.getRootElement();
+        MybatisXml targetXml = parse(document);
         for (MybatisMethod mybatisMethod : mybatisXml) {
-            if (mybatisMethod.isDefaultMethod()) {
+            if (targetXml.hasMethod(mybatisMethod.getId())) {
                 continue;
             }
             // 添加换行
