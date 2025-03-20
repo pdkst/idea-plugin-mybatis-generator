@@ -9,11 +9,9 @@ import ${serviceFullClassName};
 <#if entityPackage?default("")?trim?length gt 1>
 import ${entityFullClassName};
 </#if>
-<#if mapperPackage?default("")?trim?length gt 1>
-import ${mapperFullClassName};
-</#if>
 import ${superServiceImplClass};
 </#if>
+import ${mapperFullClassName};
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,5 +30,6 @@ public class ${serviceImplName} extends ${superServiceImplClassName}<${mapperNam
 <#else>
 public class ${serviceImplName} implements ${serviceName} {
 </#if>
+    private final ${mapperName} ${mapperInstanceName};
 
 }

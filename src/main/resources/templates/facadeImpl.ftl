@@ -9,11 +9,9 @@ import ${facadeFullClassName};
 <#if entityPackage?default("")?trim?length gt 1>
 import ${entityFullClassName};
 </#if>
-<#if mapperPackage?default("")?trim?length gt 1>
-import ${mapperFullClassName};
-</#if>
 import ${superFacadeImplClass};
 </#if>
+import ${serviceFullClassName};
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,5 +30,6 @@ public class ${facadeImplName} extends ${superFacadeImplClassName}<${mapperName}
 <#else>
 public class ${facadeImplName} implements ${facadeName} {
 </#if>
+    private final ${serviceName} ${serviceInstanceName};
 
 }

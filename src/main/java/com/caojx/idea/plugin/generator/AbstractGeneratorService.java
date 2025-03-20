@@ -168,6 +168,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("mapperTemplatePath", Constant.MAPPER_TEMPLATE_PATH);
         objectMap.put("mapperPackage", mapperProperties.getPackageName());
         objectMap.put("mapperName", mapperName);
+        objectMap.put("mapperInstanceName", StringUtils.uncapitalize(mapperName));
         objectMap.put("mapperFullClassName", ClassUtils.getFullClassName(mapperProperties.getPackageName(), mapperName));
         objectMap.put("superMapperClass", mapperProperties.getSuperMapperClass());
         objectMap.put("superMapperClassName", ClassUtils.getClassNameByFullClassName(mapperProperties.getSuperMapperClass()));
@@ -193,6 +194,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("serviceTemplatePath", Constant.SERVICE_TEMPLATE_PATH);
         objectMap.put("servicePackage", serviceProperties.getPackageName());
         objectMap.put("serviceName", serviceName);
+        objectMap.put("serviceInstanceName", StringUtils.uncapitalize(serviceName));
         objectMap.put("serviceFullClassName", ClassUtils.getFullClassName(serviceProperties.getPackageName(), serviceName));
         objectMap.put("superServiceClass", serviceProperties.getSuperServiceClass());
         objectMap.put("superServiceClassName", ClassUtils.getClassNameByFullClassName(serviceProperties.getSuperServiceClass()));
@@ -216,6 +218,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("facadeTemplatePath", Constant.FACADE_TEMPLATE_PATH);
         objectMap.put("facadePackage", facadeProperties.getPackageName());
         objectMap.put("facadeName", facadeName);
+        objectMap.put("facadeInstanceName", StringUtils.uncapitalize(facadeName));
         objectMap.put("facadeFullClassName", ClassUtils.getFullClassName(facadeProperties.getPackageName(), facadeName));
         objectMap.put("superFacadeClass", facadeProperties.getSuperClass());
         objectMap.put("superFacadeClassName", ClassUtils.getClassNameByFullClassName(facadeProperties.getSuperClass()));
