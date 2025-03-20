@@ -888,9 +888,11 @@ public class GeneratorSettingUI extends DialogWrapper {
         if (CollectionUtils.isEmpty(selectedTableNames)) {
             return "请选择要生成的表";
         }
+        FacadeProperties facadeProperties = generatorProperties.getFacadeProperties();
+        FacadeImplProperties facadeImplProperties = generatorProperties.getFacadeImplProperties();
 
         // 至少要生成一种文件
-        if (!(entityProperties.isSelectedGenerateCheckBox() || entityProperties.isSelectedGenerateEntityExampleCheckBox() || mapperProperties.isSelectedGenerateCheckBox() || mapperXmlProperties.isSelectedGenerateCheckBox() || serviceProperties.isSelectedGenerateCheckBox() || serviceImplProperties.isSelectedGenerateCheckBox() || controllerProperties.isSelectedGenerateCheckBox())) {
+        if (!(entityProperties.isSelectedGenerateCheckBox() || entityProperties.isSelectedGenerateEntityExampleCheckBox() || mapperProperties.isSelectedGenerateCheckBox() || mapperXmlProperties.isSelectedGenerateCheckBox() || serviceProperties.isSelectedGenerateCheckBox() || serviceImplProperties.isSelectedGenerateCheckBox() || controllerProperties.isSelectedGenerateCheckBox() || facadeProperties.isSelectedGenerateCheckBox() || facadeImplProperties.isSelectedGenerateCheckBox())) {
             return "至少要选择生成一种文件";
         }
         return "";
