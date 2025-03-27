@@ -30,13 +30,13 @@ public class MySqlDatabase implements Database {
     }
 
     @Override
-    public List<TableInfo> getTables(String... tableName) throws SQLException {
-        return executeWithConnection(connection -> getTables(connection, Arrays.asList(tableName), true));
+    public List<TableInfo> getTables(List<String> tableNames) throws SQLException {
+        return executeWithConnection(connection -> getTables(connection, tableNames, true));
     }
 
     @Override
-    public List<TableInfo> getTablesWithoutFields(String... tableName) throws SQLException {
-        return executeWithConnection(connection -> getTables(connection, Arrays.asList(tableName), false));
+    public List<TableInfo> getTablesWithoutFields(List<String> tableNames) throws SQLException {
+        return executeWithConnection(connection -> getTables(connection, tableNames, false));
     }
 
     private List<TableInfo> getTables(Connection conn, List<String> tableNames, boolean withFields) throws SQLException {

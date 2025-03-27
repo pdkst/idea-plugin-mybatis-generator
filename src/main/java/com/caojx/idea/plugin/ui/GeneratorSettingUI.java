@@ -7,6 +7,7 @@ import com.caojx.idea.plugin.common.pojo.DatabaseWithPwd;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.*;
 import com.caojx.idea.plugin.common.utils.*;
+import com.caojx.idea.plugin.generator.AbstractGeneratorService;
 import com.caojx.idea.plugin.generator.GeneratorContext;
 import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
 import com.caojx.idea.plugin.generator.IGeneratorService;
@@ -534,7 +535,8 @@ public class GeneratorSettingUI extends DialogWrapper {
 
         // 配置数据库
         configDataBaseBtn.addActionListener(e -> {
-            DataSourcesSettingUI dataSourcesSettingUI = new DataSourcesSettingUI(project, this);
+            DataSourcesSettingUI dataSourcesSettingUI = new DataSourcesSettingUI(project);
+            dataSourcesSettingUI.addRefreshListener(this::refreshDatabaseComBox);
             dataSourcesSettingUI.show();
         });
 
@@ -633,7 +635,7 @@ public class GeneratorSettingUI extends DialogWrapper {
             persistentState.setGeneratorProperties(generatorProperties);
 
             // 校验数据
-            String message = validGeneratorData(generatorProperties);
+            String message = AbstractGeneratorService.validGeneratorData(generatorProperties);
             if (StringUtils.isNotBlank(message)) {
                 MyMessages.showWarningDialog(project, message, "info");
                 return;
@@ -766,146 +768,6 @@ public class GeneratorSettingUI extends DialogWrapper {
         generatorProperties.setControllerProperties(controllerProperties);
 
         return generatorProperties;
-    }
-
-    /**
-     * 校验生成数据
-     *
-     * @param generatorProperties 生成配置
-     * @return 返回非空字符串，校验不通过
-     */
-    private String validGeneratorData(GeneratorProperties generatorProperties) {
-        // 公共配置校验
-        CommonProperties commonProperties = generatorProperties.getCommonProperties();
-        if (StringUtils.isBlank(commonProperties.getAuthor())) {
-            return "请填写生成作者";
-        }
-
-        // 实体校验
-        EntityProperties entityProperties = generatorProperties.getEntityProperties();
-        if (StringUtils.isBlank(entityProperties.getPath())) {
-            return "请选择entity路径";
-        }
-//        if (StringUtils.isBlank(entityProperties.getPackageName())) {
-//            return "请填写entity包名";
-//        }
-        if (!validNamePattern(entityProperties.getNamePattern())) {
-            return "entity命名格式需要包含%s";
-        }
-
-        // mapper校验
-        MapperProperties mapperProperties = generatorProperties.getMapperProperties();
-        if (mapperProperties.isSelectedGenerateCheckBox()) {
-            if (StringUtils.isBlank(mapperProperties.getPath())) {
-                return "请选择mapper路径";
-            }
-//            if (StringUtils.isBlank(mapperProperties.getPackageName())) {
-//                return "请填写mapper包名";
-//            }
-            if (!validNamePattern(mapperProperties.getNamePattern())) {
-                return "mapper命名格式需要包含%s";
-            }
-        }
-
-        // mapperXml校验
-        MapperXmlProperties mapperXmlProperties = generatorProperties.getMapperXmlProperties();
-        if (mapperXmlProperties.isSelectedGenerateCheckBox()) {
-            if (StringUtils.isBlank(mapperXmlProperties.getPath())) {
-                return "请选择mapperXml路径";
-            }
-            if (!validNamePattern(mapperXmlProperties.getNamePattern())) {
-                return "mapperXml命名格式需要包含%s";
-            }
-
-//            // 生成mapperXml依赖的其他填写项
-//            if (StringUtils.isBlank(mapperProperties.getPackageName())) {
-//                return "生成mapperXml，请填写mapper包名";
-//            }
-            if (!validNamePattern(mapperProperties.getNamePattern())) {
-                return "生成mapperXml，mapper命名格式需要包含%s";
-            }
-        }
-
-        // service校验
-        ServiceProperties serviceProperties = generatorProperties.getServiceProperties();
-        if (serviceProperties.isSelectedGenerateCheckBox()) {
-            if (StringUtils.isBlank(serviceProperties.getPath())) {
-                return "请选择service路径";
-            }
-//            if (StringUtils.isBlank(serviceProperties.getPackageName())) {
-//                return "请填写service包名";
-//            }
-            if (!validNamePattern(serviceProperties.getNamePattern())) {
-                return "service命名格式需要包含%s";
-            }
-        }
-
-        // serviceImpl校验
-        ServiceImplProperties serviceImplProperties = generatorProperties.getServiceImplProperties();
-        if (serviceImplProperties.isSelectedGenerateCheckBox()) {
-            if (StringUtils.isBlank(serviceImplProperties.getPath())) {
-                return "请选择serviceImpl路径";
-            }
-//            if (StringUtils.isBlank(serviceImplProperties.getPackageName())) {
-//                return "请填写serviceImpl包名";
-//            }
-            if (!validNamePattern(serviceImplProperties.getNamePattern())) {
-                return "serviceImpl命名格式需要包含%s";
-            }
-
-            // 生成serviceImpl依赖的其他填写项
-//            if (StringUtils.isBlank(serviceProperties.getPackageName())) {
-//                return "生成serviceImpl，请填写service包名";
-//            }
-            if (!validNamePattern(serviceProperties.getNamePattern())) {
-                return "生成serviceImpl，service命名格式需要包含%s";
-            }
-            if (StringUtils.isNotBlank(serviceImplProperties.getSuperServiceImplClass())) {
-//                if (StringUtils.isBlank(mapperProperties.getPackageName())) {
-//                    return "生成serviceImpl，请填写mapper包名";
-//                }
-                if (!validNamePattern(mapperProperties.getNamePattern())) {
-                    return "生成serviceImpl，mapper命名格式需要包含%s";
-                }
-            }
-        }
-
-        // controller
-        ControllerProperties controllerProperties = generatorProperties.getControllerProperties();
-        if (controllerProperties.isSelectedGenerateCheckBox()) {
-            if (StringUtils.isBlank(controllerProperties.getPath())) {
-                return "请选择controller路径";
-            }
-//            if (StringUtils.isBlank(controllerProperties.getPackageName())) {
-//                return "请填写controller包名";
-//            }
-            if (!validNamePattern(controllerProperties.getNamePattern())) {
-                return "controller命名格式需要包含%s";
-            }
-        }
-
-        // 表校验
-        if (CollectionUtils.isEmpty(selectedTableNames)) {
-            return "请选择要生成的表";
-        }
-        FacadeProperties facadeProperties = generatorProperties.getFacadeProperties();
-        FacadeImplProperties facadeImplProperties = generatorProperties.getFacadeImplProperties();
-
-        // 至少要生成一种文件
-        if (!(entityProperties.isSelectedGenerateCheckBox() || entityProperties.isSelectedGenerateEntityExampleCheckBox() || mapperProperties.isSelectedGenerateCheckBox() || mapperXmlProperties.isSelectedGenerateCheckBox() || serviceProperties.isSelectedGenerateCheckBox() || serviceImplProperties.isSelectedGenerateCheckBox() || controllerProperties.isSelectedGenerateCheckBox() || facadeProperties.isSelectedGenerateCheckBox() || facadeImplProperties.isSelectedGenerateCheckBox())) {
-            return "至少要选择生成一种文件";
-        }
-        return "";
-    }
-
-    /**
-     * 校验命名格式
-     *
-     * @param namePattern 命名格式
-     * @return true 校验通过、false 校验失败
-     */
-    private boolean validNamePattern(String namePattern) {
-        return StringUtils.isNotBlank(namePattern) && namePattern.contains("%s");
     }
 
     /**

@@ -13,7 +13,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 数据源UI配置类
@@ -29,11 +31,6 @@ public class DataSourcesSettingUI extends DialogWrapper {
     private JButton editBtn;
 
     private final Project project;
-
-    /**
-     * 代码生成配置UI
-     */
-    private final GeneratorSettingUI generatorSettingUI;
 
     /**
      * 数据库列表
@@ -57,12 +54,13 @@ public class DataSourcesSettingUI extends DialogWrapper {
 
     private final PersistentStateService persistentStateService;
 
-    public DataSourcesSettingUI(@NotNull Project project, @NotNull GeneratorSettingUI generatorSettingUI) {
+    private List<Consumer<List<DatabaseWithOutPwd>>> onRefreshListeners = new ArrayList<>();
+
+    public DataSourcesSettingUI(@NotNull Project project) {
         super(true);
         init();
 
         this.project = project;
-        this.generatorSettingUI = generatorSettingUI;
         this.persistentStateService = PersistentStateService.getInstance(project);
 
         // 初始化界面数据
@@ -133,7 +131,7 @@ public class DataSourcesSettingUI extends DialogWrapper {
 
             // 刷新
             refreshDatabaseTable(databases);
-            generatorSettingUI.refreshDatabaseComBox(databases);
+            triggerRefresh(databases);
         });
 
         // 编辑数据库
@@ -174,6 +172,19 @@ public class DataSourcesSettingUI extends DialogWrapper {
         });
 
         // 刷新数据库选择下拉框
-        generatorSettingUI.refreshDatabaseComBox(databases);
+        triggerRefresh(databases);
+    }
+
+    private void triggerRefresh(List<DatabaseWithOutPwd> databases) {
+        if (onRefreshListeners.isEmpty()) {
+            return;
+        }
+        for (Consumer<List<DatabaseWithOutPwd>> onRefreshListener : onRefreshListeners) {
+            onRefreshListener.accept(databases);
+        }
+    }
+
+    public void addRefreshListener(Consumer<List<DatabaseWithOutPwd>> onRefresh) {
+        onRefreshListeners.add(onRefresh);
     }
 }

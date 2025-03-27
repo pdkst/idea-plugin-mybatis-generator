@@ -1,6 +1,6 @@
 package com.caojx.idea.plugin.action;
 
-import com.caojx.idea.plugin.ui.GeneratorSettingUI;
+import io.github.pdkst.idea.plugin.ui.SelectTableUI;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -20,7 +20,9 @@ public class GeneratorAction extends AnAction {
         Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
         // 显示配置窗体
-        GeneratorSettingUI generatorSettingUI = new GeneratorSettingUI(project);
+//        GeneratorSettingUI generatorSettingUI = new GeneratorSettingUI(project);
+//        generatorSettingUI.show();
+        SelectTableUI generatorSettingUI = new SelectTableUI(project);
         generatorSettingUI.show();
     }
 }
