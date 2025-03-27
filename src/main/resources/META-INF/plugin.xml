@@ -49,6 +49,7 @@
         <!--持久化
         see https://plugins.jetbrains.com/docs/intellij/persisting-state-of-components.html
         -->
+        <applicationService serviceImplementation="io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService"/>
         <projectService serviceImplementation="com.caojx.idea.plugin.persistent.PersistentStateService"/>
 
         <!--工具栏，暂时去掉侧边工具栏，生成代码是低频操作，没必要占用侧边工具栏-->

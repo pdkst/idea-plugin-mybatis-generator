@@ -16,12 +16,6 @@ import java.util.List;
 @Data
 public class CommonProperties implements Serializable {
 
-
-    /**
-     * 作者
-     */
-    private String author;
-
     /**
      * 模块名称
      */

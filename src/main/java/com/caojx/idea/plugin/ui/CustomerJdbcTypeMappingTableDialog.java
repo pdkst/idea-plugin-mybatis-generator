@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
+import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,19 +47,18 @@ public class CustomerJdbcTypeMappingTableDialog extends DialogWrapper {
     private final Project project;
     private final Map<String, String> customerJdbcTypeMappingMap;
     private final GeneratorSettingUI generatorSettingUI;
-    private final PersistentStateService persistentStateService;
+    private final GlobalPersistentStateService globalPersistentStateService;
 
-    protected CustomerJdbcTypeMappingTableDialog(@NotNull Project project, @NotNull GeneratorSettingUI generatorSettingUI) {
+    protected CustomerJdbcTypeMappingTableDialog(@NotNull Project project,
+                                                 @NotNull GeneratorSettingUI generatorSettingUI) {
         super(project);
         init();
         setTitle("Jdbc类型映射配置");
 
         this.project = project;
         this.generatorSettingUI = generatorSettingUI;
-        this.persistentStateService = PersistentStateService.getInstance(project);
-        PersistentState persistentState = persistentStateService.getState();
-        EntityProperties entityProperties = persistentState.getGeneratorProperties().getEntityProperties();
-        customerJdbcTypeMappingMap = Optional.ofNullable(entityProperties.getCustomerJdbcTypeMappingMap()).orElse(new HashMap<>(4));
+        this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
+        customerJdbcTypeMappingMap = globalPersistentStateService.getState().getCustomerJdbcTypeMappingMap();
 
         // 刷新表格
         refreshTable(customerJdbcTypeMappingMap);
@@ -104,17 +104,14 @@ public class CustomerJdbcTypeMappingTableDialog extends DialogWrapper {
                 String errorMessage = putJdbcTypeMapping(rowData[1].toString(), rowData[2].toString());
                 if (StringUtils.isNotBlank(errorMessage)) {
                     allSuccess = false;
-                    MyMessages.showWarningDialog(this.project, "第" + rowData[0] + "行保存失败：" + errorMessage, "Warning");
+                    MyMessages.showWarningDialog(this.project, "第" + rowData[0] + "行保存失败：" + errorMessage,
+                            "Warning");
                 }
             }
 
             // 持久化映射配置
             if (allSuccess) {
-                PersistentState persistentState = persistentStateService.getState();
-                GeneratorProperties generatorProperties = Optional.ofNullable(persistentState.getGeneratorProperties()).orElse(new GeneratorProperties());
-                EntityProperties entityProperties = generatorProperties.getEntityProperties();
-                entityProperties.setCustomerJdbcTypeMappingMap(customerJdbcTypeMappingMap);
-                persistentState.setGeneratorProperties(generatorProperties);
+                globalPersistentStateService.getState().setCustomerJdbcTypeMappingMap(customerJdbcTypeMappingMap);
                 generatorSettingUI.setCustomerJdbcTypeMappingMap(customerJdbcTypeMappingMap);
                 MyMessages.showInfoMessage(this.project, "配置保存成功", "info");
             }
@@ -136,9 +133,8 @@ public class CustomerJdbcTypeMappingTableDialog extends DialogWrapper {
 
     @Override
     protected JComponent createSouthPanel() {
-        JTextArea jTextArea = new JTextArea("1.基本类型直接写(如int) \n" +
-                "2.类类型需要Class.forName能识别(如java.time.LocalDateTime或[B) \n" +
-                "3.自定义配置会覆盖默认的配");
+        JTextArea jTextArea = new JTextArea(
+                "1.基本类型直接写(如int) \n" + "2.类类型需要Class.forName能识别(如java.time.LocalDateTime或[B) \n" + "3.自定义配置会覆盖默认的配");
         jTextArea.setEnabled(false);
         JPanel southPanel = new JPanel();
         southPanel.setSize(250, 60);

@@ -1,5 +1,9 @@
 package com.caojx.idea.plugin.common.properties;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.sql.JDBCType;
 import java.util.HashMap;
@@ -11,6 +15,7 @@ import java.util.Map;
  * @author caojx
  * @date 2022/4/10 12:15 PM
  */
+@Data
 public class EntityProperties implements Serializable {
 
     /**
@@ -78,107 +83,4 @@ public class EntityProperties implements Serializable {
      */
     private Map<String, String> customerJdbcTypeMappingMap = new HashMap<>();
 
-    public boolean isSelectedGenerateCheckBox() {
-        return selectedGenerateCheckBox;
-    }
-
-    public void setSelectedGenerateCheckBox(boolean selectedGenerateCheckBox) {
-        this.selectedGenerateCheckBox = selectedGenerateCheckBox;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public String getNamePattern() {
-        return namePattern;
-    }
-
-    public void setNamePattern(String namePattern) {
-        this.namePattern = namePattern;
-    }
-
-    public boolean isSelectedGenerateEntityExampleCheckBox() {
-        return selectedGenerateEntityExampleCheckBox;
-    }
-
-    public void setSelectedGenerateEntityExampleCheckBox(boolean selectedGenerateEntityExampleCheckBox) {
-        this.selectedGenerateEntityExampleCheckBox = selectedGenerateEntityExampleCheckBox;
-    }
-
-    public String getExampleNamePattern() {
-        return exampleNamePattern;
-    }
-
-    public void setExampleNamePattern(String exampleNamePattern) {
-        this.exampleNamePattern = exampleNamePattern;
-    }
-
-    public boolean isSelectedSerializableCheckBox() {
-        return selectedSerializableCheckBox;
-    }
-
-    public void setSelectedSerializableCheckBox(boolean selectedSerializableCheckBox) {
-        this.selectedSerializableCheckBox = selectedSerializableCheckBox;
-    }
-
-    public boolean isSelectedDataCheckBox() {
-        return selectedDataCheckBox;
-    }
-
-    public void setSelectedDataCheckBox(boolean selectedDataCheckBox) {
-        this.selectedDataCheckBox = selectedDataCheckBox;
-    }
-
-    public boolean isSelectedBuilderCheckBox() {
-        return selectedBuilderCheckBox;
-    }
-
-    public void setSelectedBuilderCheckBox(boolean selectedBuilderCheckBox) {
-        this.selectedBuilderCheckBox = selectedBuilderCheckBox;
-    }
-
-    public boolean isSelectedNoArgsConstructorCheckBox() {
-        return selectedNoArgsConstructorCheckBox;
-    }
-
-    public void setSelectedNoArgsConstructorCheckBox(boolean selectedNoArgsConstructorCheckBox) {
-        this.selectedNoArgsConstructorCheckBox = selectedNoArgsConstructorCheckBox;
-    }
-
-    public boolean isSelectedAllArgsConstructorCheckBox() {
-        return selectedAllArgsConstructorCheckBox;
-    }
-
-    public void setSelectedAllArgsConstructorCheckBox(boolean selectedAllArgsConstructorCheckBox) {
-        this.selectedAllArgsConstructorCheckBox = selectedAllArgsConstructorCheckBox;
-    }
-
-    public boolean isSelectedSwaggerCheckBox() {
-        return selectedSwaggerCheckBox;
-    }
-
-    public void setSelectedSwaggerCheckBox(boolean selectedSwaggerCheckBox) {
-        this.selectedSwaggerCheckBox = selectedSwaggerCheckBox;
-    }
-
-    public Map<String, String> getCustomerJdbcTypeMappingMap() {
-        return customerJdbcTypeMappingMap;
-    }
-
-    public void setCustomerJdbcTypeMappingMap(Map<String, String> customerJdbcTypeMappingMap) {
-        this.customerJdbcTypeMappingMap = customerJdbcTypeMappingMap;
-    }
 }

@@ -18,6 +18,7 @@ import com.caojx.idea.plugin.ui.GeneratorSettingUI;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.pdkst.idea.plugin.common.utils.*;
+import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +35,7 @@ import java.util.Map;
 public class SelectTableUI extends DialogWrapper {
     private final Project project;
     private final PersistentStateService persistentStateService;
+    private final GlobalPersistentStateService globalPersistentStateService;
 
     /**
      * 生成代码业务接口
@@ -60,7 +62,7 @@ public class SelectTableUI extends DialogWrapper {
         setTitle("数据库表选择");
         this.project = project;
         this.persistentStateService = PersistentStateService.getInstance(project);
-
+        this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
         // 初始化界面
         initUI();
     }
@@ -107,7 +109,8 @@ public class SelectTableUI extends DialogWrapper {
             DatabaseWithPwd databaseWithPwd = convertDatabaseWithPwd(database);
             Database mysql = DBHelper.getMySql(databaseWithPwd, new HashMap<>(4));
 
-            String tableNamePattern = StringUtils.isBlank(tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
+            String tableNamePattern = StringUtils.isBlank(
+                    tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
             List<TableInfo> tableList = mysql.getTables(tableNamePattern);
 
             dataModel.clearData();
@@ -154,7 +157,11 @@ public class SelectTableUI extends DialogWrapper {
         List<TableInfo> tables = getTables(database, generatorProperties.getEntityProperties(), selectedTableNames);
 
         // 校验数据
-        String message = AbstractGeneratorService.validGeneratorData(generatorProperties);
+        GeneratorContext generatorContext = new GeneratorContext();
+        generatorContext.setTables(tables);
+        generatorContext.setGeneratorProperties(generatorProperties);
+        generatorContext.setGlobalPersistentState(globalPersistentStateService.getState());
+        String message = AbstractGeneratorService.validGeneratorData(generatorContext);
         if (StringUtils.isNotBlank(message)) {
             MyMessages.showWarningDialog(project, message, "info");
             return;
@@ -166,19 +173,18 @@ public class SelectTableUI extends DialogWrapper {
             return;
         }
 
-        GeneratorContext generatorContext = new GeneratorContext();
-        generatorContext.setTables(tables);
-        generatorContext.setGeneratorProperties(generatorProperties);
-
         // 生成代码
         generatorService.doGenerator(project, generatorContext);
         MyMessages.showInfoMessage(project, "生成代码执行完成", "info");
     }
 
-    private List<TableInfo> getTables(DatabaseWithPwd databaseConfig, EntityProperties entityProperties, List<String> selectedTableNames) {
+    private List<TableInfo> getTables(DatabaseWithPwd databaseConfig,
+                                      EntityProperties entityProperties,
+                                      List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DBHelper.getMySql(databaseConfig, JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
+            Database database = DBHelper.getMySql(databaseConfig,
+                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
             return database.getTables(selectedTableNames);
         } catch (SQLException e) {
             MyMessages.showWarningDialog(project, "获取表信息失败", "info");

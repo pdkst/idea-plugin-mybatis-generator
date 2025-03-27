@@ -30,8 +30,7 @@ import java.util.Objects;
         // 存储xml标签信息
         name = "persistentStateService",
         // 存放文件名
-        storages = @Storage("mbg-plugin.xml")
-)
+        storages = @Storage("mbg-plugin.xml"))
 public class PersistentStateService implements PersistentStateComponent<PersistentState> {
 
     /**
@@ -44,8 +43,10 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
     }
 
     @Override
-    public @Nullable
-    PersistentState getState() {
+    public @Nullable PersistentState getState() {
+        if (this.persistentData == null) {
+            return this.persistentData = new PersistentState();
+        }
         return this.persistentData;
     }
 
@@ -62,14 +63,15 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
      * @param persistentData
      */
     private void transferXmlDatabasesConfig(PersistentState persistentData) {
-        if (Objects.nonNull(persistentData.getGeneratorProperties())
-                && Objects.nonNull(persistentData.getGeneratorProperties().getCommonProperties())) {
+        if (Objects.nonNull(persistentData.getGeneratorProperties()) && Objects.nonNull(
+                persistentData.getGeneratorProperties().getCommonProperties())) {
             CommonProperties commonProperties = persistentData.getGeneratorProperties().getCommonProperties();
             List<DatabaseWithOutPwd> databases = commonProperties.getDatabases();
             if (databases != null && !databases.isEmpty()) {
                 List<DatabaseWithOutPwd> databasesConfigList = PersistentExtConfig.loadDatabase();
                 for (DatabaseWithOutPwd database : databases) {
-                    boolean anyMatch = databasesConfigList.stream().anyMatch(item -> item.getIdentifierName().equals(database.getIdentifierName()));
+                    boolean anyMatch = databasesConfigList.stream()
+                            .anyMatch(item -> item.getIdentifierName().equals(database.getIdentifierName()));
                     if (!anyMatch) {
                         databasesConfigList.add(database);
                     }
@@ -88,7 +90,8 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
      * @param password 密码
      */
     public void setPassword(String key, String password) {
-        CredentialAttributes credentialAttributes = new CredentialAttributes(CredentialAttributesKt.generateServiceName(Constant.PLUGIN_NAME, key));
+        CredentialAttributes credentialAttributes = new CredentialAttributes(
+                CredentialAttributesKt.generateServiceName(Constant.PLUGIN_NAME, key));
         Credentials credentials = new Credentials(credentialAttributes.getUserName(), password);
         PasswordSafe.getInstance().set(credentialAttributes, credentials);
     }
@@ -100,7 +103,8 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
      * @return 密码
      */
     public String getPassword(String key) {
-        CredentialAttributes credentialAttributes = new CredentialAttributes(CredentialAttributesKt.generateServiceName(Constant.PLUGIN_NAME, key));
+        CredentialAttributes credentialAttributes = new CredentialAttributes(
+                CredentialAttributesKt.generateServiceName(Constant.PLUGIN_NAME, key));
         Credentials credentials = PasswordSafe.getInstance().get(credentialAttributes);
         return Objects.nonNull(credentials) ? credentials.getPasswordAsString() : "";
     }
@@ -111,7 +115,8 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
      * @param key key
      */
     public void clearPassword(String key) {
-        CredentialAttributes credentialAttributes = new CredentialAttributes(CredentialAttributesKt.generateServiceName(Constant.PLUGIN_NAME, key));
+        CredentialAttributes credentialAttributes = new CredentialAttributes(
+                CredentialAttributesKt.generateServiceName(Constant.PLUGIN_NAME, key));
         PasswordSafe.getInstance().set(credentialAttributes, null);
     }
 }
