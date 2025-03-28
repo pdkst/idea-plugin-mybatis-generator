@@ -1,11 +1,10 @@
 package io.github.pdkst.idea.plugin.ui;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseWithOutPwd;
-import com.caojx.idea.plugin.common.pojo.DatabaseWithPwd;
+import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.EntityProperties;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
-import com.caojx.idea.plugin.common.utils.DatabaseConvert;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.generator.AbstractGeneratorService;
 import com.caojx.idea.plugin.generator.GeneratorContext;
@@ -13,12 +12,12 @@ import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
 import com.caojx.idea.plugin.generator.IGeneratorService;
 import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.caojx.idea.plugin.persistent.PersistentStateService;
-import com.caojx.idea.plugin.ui.DataSourcesSettingUI;
 import com.caojx.idea.plugin.ui.GeneratorSettingUI;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.pdkst.idea.plugin.common.utils.*;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -65,15 +64,18 @@ public class SelectTableUI extends DialogWrapper {
         this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
         // 初始化界面
         initUI();
+        initListener();
     }
 
     private void initUI() {
         dataModel = new TableInfoTableModel();
         table.setModel(dataModel);
         databaseComboBox.setRenderer(new DatabaseWithOutPwdListCellRenderer());
-        List<DatabaseWithOutPwd> extDatabases = PersistentExtConfig.loadDatabase();
+        List<DatabaseProperties> extDatabases = PersistentExtConfig.loadDatabase();
         initDatabaseComBox(extDatabases, null);
+    }
 
+    private void initListener() {
         // 设置监听
         queryTableBtn.addActionListener(e -> {
             searchTables();
@@ -100,18 +102,17 @@ public class SelectTableUI extends DialogWrapper {
     }
 
     private void searchTables() {
-        DatabaseWithOutPwd database = (DatabaseWithOutPwd) databaseComboBox.getSelectedItem();
+        DatabaseProperties database = (DatabaseProperties) databaseComboBox.getSelectedItem();
         if (database == null) {
             MyMessages.showWarningDialog(project, "请选择一个数据库", "Warning");
             return;
         }
         try {
-            DatabaseWithPwd databaseWithPwd = convertDatabaseWithPwd(database);
+            DatabaseSensitiveProperties databaseWithPwd = convertDatabaseWithPwd(database);
             Database mysql = DBHelper.getMySql(databaseWithPwd, new HashMap<>(4));
 
-            String tableNamePattern = StringUtils.isBlank(
-                    tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
-            List<TableInfo> tableList = mysql.getTables(tableNamePattern);
+            String tableNamePattern = StringUtils.isBlank(tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
+            List<TableInfo> tableList = mysql.getTablesAndFields(tableNamePattern);
 
             dataModel.clearData();
 
@@ -137,9 +138,9 @@ public class SelectTableUI extends DialogWrapper {
      * @param database 数据库信息
      * @return 带密码的数据库信息
      */
-    private DatabaseWithPwd convertDatabaseWithPwd(DatabaseWithOutPwd database) {
-        String password = persistentStateService.getPassword(database.getIdentifierName());
-        return DatabaseConvert.convertDatabaseWithPwd(database, password);
+    private DatabaseSensitiveProperties convertDatabaseWithPwd(DatabaseProperties database) {
+        String password = PasswordUtils.getPassword(database.getIdentifierName());
+        return new DatabaseSensitiveProperties(database, password);
     }
 
     public void generateCode() {
@@ -153,7 +154,7 @@ public class SelectTableUI extends DialogWrapper {
             MyMessages.showWarningDialog(project, "请选择要生成的表", "info");
             return;
         }
-        DatabaseWithPwd database = (DatabaseWithPwd) databaseComboBox.getSelectedItem();
+        DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
         List<TableInfo> tables = getTables(database, generatorProperties.getEntityProperties(), selectedTableNames);
 
         // 校验数据
@@ -178,14 +179,11 @@ public class SelectTableUI extends DialogWrapper {
         MyMessages.showInfoMessage(project, "生成代码执行完成", "info");
     }
 
-    private List<TableInfo> getTables(DatabaseWithPwd databaseConfig,
-                                      EntityProperties entityProperties,
-                                      List<String> selectedTableNames) {
+    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig, EntityProperties entityProperties, List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DBHelper.getMySql(databaseConfig,
-                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
-            return database.getTables(selectedTableNames);
+            Database database = DBHelper.getMySql(databaseConfig, JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
+            return database.getTablesAndFields(selectedTableNames);
         } catch (SQLException e) {
             MyMessages.showWarningDialog(project, "获取表信息失败", "info");
             return new ArrayList<>();
@@ -198,21 +196,21 @@ public class SelectTableUI extends DialogWrapper {
      * @param databases                数据库列表
      * @param selectedShowDatabaseName 选中的数据库名
      */
-    private void initDatabaseComBox(List<DatabaseWithOutPwd> databases, String selectedShowDatabaseName) {
+    private void initDatabaseComBox(List<DatabaseProperties> databases, String selectedShowDatabaseName) {
         // 数据库为空
         databaseComboBox.removeAllItems();
 
         // 初始化下拉列表，默认选中0号数据库
         if (CollectionUtils.isNotEmpty(databases)) {
-            for (DatabaseWithOutPwd database : databases) {
+            for (DatabaseProperties database : databases) {
                 databaseComboBox.addItem(database);
             }
-            databaseComboBox.setSelectedItem(databases.get(0).getIdentifierName());
+            databaseComboBox.setSelectedItem(databases.get(0));
         }
 
         // 设置为选中的数据库
         boolean selectedDatabaseChange = true;
-        for (DatabaseWithOutPwd database : databases) {
+        for (DatabaseProperties database : databases) {
             if (StringUtils.equals(database.getIdentifierName(), selectedShowDatabaseName)) {
                 selectedDatabaseChange = false;
                 databaseComboBox.setSelectedItem(selectedShowDatabaseName);

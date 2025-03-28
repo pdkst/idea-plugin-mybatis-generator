@@ -1,15 +1,16 @@
-package com.caojx.idea.plugin.ui;
+package io.github.pdkst.idea.plugin.ui;
 
 import com.caojx.idea.plugin.common.enums.DataBaseTypeEnum;
-import com.caojx.idea.plugin.common.pojo.DatabaseWithOutPwd;
-import com.caojx.idea.plugin.common.pojo.DatabaseWithPwd;
-import com.caojx.idea.plugin.common.utils.DatabaseConvert;
+import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.common.utils.MySQLDBHelper;
 import com.caojx.idea.plugin.persistent.PersistentExtConfig;
-import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
+import io.github.pdkst.idea.plugin.common.utils.RefreshDispatcher;
+import lombok.experimental.Delegate;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,32 +43,28 @@ public class EditDatabaseSettingUI extends DialogWrapper {
     private final Project project;
 
     /**
-     * 数据源UI配置类
-     */
-    private final DataSourcesSettingUI dataSourcesSettingUI;
-
-    /**
      * 编辑的数据库
      */
-    private final DatabaseWithOutPwd editDatabase;
+    private final DatabaseProperties editDatabase;
 
     /**
      * 数据库列表
      */
-    private List<DatabaseWithOutPwd> databases;
+    private List<DatabaseProperties> databases;
+
+    /**
+     * 刷新监听器
+     */
+    @Delegate
+    private final RefreshDispatcher refreshDispatcher = new RefreshDispatcher();
 
 
-    private final PersistentStateService persistentStateService;
-
-
-    public EditDatabaseSettingUI(@NotNull Project project, DatabaseWithOutPwd editDatabase, @NotNull DataSourcesSettingUI dataSourcesSettingUI) {
+    public EditDatabaseSettingUI(@NotNull Project project, DatabaseProperties editDatabase) {
         super(true);
         init();
 
         this.project = project;
         this.editDatabase = editDatabase;
-        this.dataSourcesSettingUI = dataSourcesSettingUI;
-        this.persistentStateService = PersistentStateService.getInstance(project);
 
         // 初始化界面数据
         renderUIData(project);
@@ -110,7 +107,7 @@ public class EditDatabaseSettingUI extends DialogWrapper {
             userNameTf.setText(StringUtils.trim(editDatabase.getUserName()));
 //            passwordTf.setText(editDatabase.getPassword());
 
-            String password = persistentStateService.getPassword(editDatabase.getIdentifierName());
+            String password = PasswordUtils.getPassword(editDatabase.getIdentifierName());
             passwordTf.setText(password);
 
             if (StringUtils.isNotBlank(editDatabase.getUrl())) {
@@ -145,7 +142,7 @@ public class EditDatabaseSettingUI extends DialogWrapper {
      * @param userName 用户名
      * @return 数据库配置信息
      */
-    private DatabaseWithOutPwd convert2DatabaseWithOutPwd(String url, String userName) {
+    private DatabaseProperties convert2DatabaseWithOutPwd(String url, String userName) {
         if (StringUtils.isBlank(url)) {
 //            throw new RuntimeException("url为空");
             return null;
@@ -175,12 +172,11 @@ public class EditDatabaseSettingUI extends DialogWrapper {
         }
 
         // 属性
-        DatabaseWithOutPwd databaseWithOutPwd = new DatabaseWithOutPwd();
+        DatabaseProperties databaseWithOutPwd = new DatabaseProperties();
         databaseWithOutPwd.setDatabaseType(DataBaseTypeEnum.MySQL.name());
         databaseWithOutPwd.setHost(host);
         databaseWithOutPwd.setPort(port);
         databaseWithOutPwd.setDatabaseName(databaseName);
-        databaseWithOutPwd.setUrl(url);
         databaseWithOutPwd.setUserName(userName);
         return databaseWithOutPwd;
     }
@@ -237,7 +233,7 @@ public class EditDatabaseSettingUI extends DialogWrapper {
         urlTf.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                DatabaseWithOutPwd databaseWithOutPwd = convert2DatabaseWithOutPwd(urlTf.getText(), userNameTf.getText());
+                DatabaseProperties databaseWithOutPwd = convert2DatabaseWithOutPwd(urlTf.getText(), userNameTf.getText());
                 if (Objects.isNull(databaseWithOutPwd)) {
                     databaseTypeComboBox.setSelectedItem(DataBaseTypeEnum.MySQL.name());
                     hostTf.setText("");
@@ -255,7 +251,7 @@ public class EditDatabaseSettingUI extends DialogWrapper {
 
         // 测试连接
         testBtn.addActionListener(e -> {
-            DatabaseWithPwd formDatabase = getFormDatabase();
+            DatabaseSensitiveProperties formDatabase = getFormDatabase();
             if (Objects.isNull(formDatabase) || !testConnectionDB(formDatabase)) {
                 MyMessages.showWarningDialog(project, "数据库连接错误，请检查配置.", "Warning");
             } else {
@@ -265,7 +261,7 @@ public class EditDatabaseSettingUI extends DialogWrapper {
 
         // 保存
         saveBtn.addActionListener(e -> {
-            DatabaseWithPwd formDatabase = getFormDatabase();
+            DatabaseSensitiveProperties formDatabase = getFormDatabase();
 
             // 连接数据库测试
             if (!testConnectionDB(formDatabase)) {
@@ -277,17 +273,17 @@ public class EditDatabaseSettingUI extends DialogWrapper {
             databases.removeIf(next -> next.getIdentifierName().equals(formDatabase.getIdentifierName()));
 
             // 存储密码
-            persistentStateService.setPassword(formDatabase.getIdentifierName(), formDatabase.getPassword());
+            PasswordUtils.setPassword(formDatabase.getIdentifierName(), formDatabase.getPassword());
 
             // 添加到列表
-            DatabaseWithOutPwd database = DatabaseConvert.convertDatabase(formDatabase);
+            DatabaseProperties database = new DatabaseProperties(formDatabase);
             databases.add(database);
 
             // 保存数据库配置
             PersistentExtConfig.saveDatabases(databases);
 
             // 刷新列表
-            dataSourcesSettingUI.refreshDatabaseTable(databases);
+            refreshDispatcher.triggerRefresh();
 
             // 隐藏
             EditDatabaseSettingUI.this.dispose();
@@ -299,18 +295,17 @@ public class EditDatabaseSettingUI extends DialogWrapper {
      *
      * @return 数据库
      */
-    private DatabaseWithPwd getFormDatabase() {
-        DatabaseWithOutPwd databaseWithOutPwd = convert2DatabaseWithOutPwd(urlTf.getText(), StringUtils.trim(userNameTf.getText()));
+    private DatabaseSensitiveProperties getFormDatabase() {
+        DatabaseProperties databaseWithOutPwd = convert2DatabaseWithOutPwd(urlTf.getText(), StringUtils.trim(userNameTf.getText()));
         if (Objects.isNull(databaseWithOutPwd)) {
             return null;
         }
-        DatabaseWithPwd database = new DatabaseWithPwd();
+        DatabaseSensitiveProperties database = new DatabaseSensitiveProperties();
         database.setDatabaseType(StringUtils.isNotBlank(databaseWithOutPwd.getDatabaseType()) ? databaseWithOutPwd.getDatabaseType() : DataBaseTypeEnum.MySQL.name());
         database.setHost(databaseWithOutPwd.getHost());
         database.setPort(databaseWithOutPwd.getPort());
         database.setDatabaseName(databaseWithOutPwd.getDatabaseName());
         database.setUserName(databaseWithOutPwd.getUserName());
-        database.setUrl(databaseWithOutPwd.getUrl());
         database.setPassword(passwordTf.getText());
         return database;
     }
@@ -320,7 +315,7 @@ public class EditDatabaseSettingUI extends DialogWrapper {
      *
      * @param databaseWithPwd 数据库
      */
-    private boolean testConnectionDB(DatabaseWithPwd databaseWithPwd) {
+    private boolean testConnectionDB(DatabaseSensitiveProperties databaseWithPwd) {
         try {
             MySQLDBHelper dbHelper = new MySQLDBHelper(databaseWithPwd, new HashMap<>(4));
             dbHelper.testDatabase();

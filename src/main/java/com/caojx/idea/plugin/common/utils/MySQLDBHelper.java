@@ -1,6 +1,6 @@
 package com.caojx.idea.plugin.common.utils;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseWithPwd;
+import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableField;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 
@@ -18,7 +18,7 @@ public class MySQLDBHelper {
     /**
      * 数据库
      */
-    private final DatabaseWithPwd databaseWithPwd;
+    private final DatabaseSensitiveProperties databaseWithPwd;
 
     /**
      * 数据库连接属性
@@ -36,7 +36,7 @@ public class MySQLDBHelper {
      * @param databaseWithPwd            数据库
      * @param customerJdbcTypeMappingMap jdbc映射关系
      */
-    public MySQLDBHelper(DatabaseWithPwd databaseWithPwd, Map<JDBCType, Class<?>> customerJdbcTypeMappingMap) {
+    public MySQLDBHelper(DatabaseSensitiveProperties databaseWithPwd, Map<JDBCType, Class<?>> customerJdbcTypeMappingMap) {
         this.databaseWithPwd = databaseWithPwd;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

@@ -1,11 +1,13 @@
-package com.caojx.idea.plugin.ui;
+package io.github.pdkst.idea.plugin.ui;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseWithOutPwd;
+import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.persistent.PersistentExtConfig;
-import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
+import io.github.pdkst.idea.plugin.common.utils.RefreshDispatcher;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,9 +15,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * 数据源UI配置类
@@ -35,7 +35,7 @@ public class DataSourcesSettingUI extends DialogWrapper {
     /**
      * 数据库列表
      */
-    private List<DatabaseWithOutPwd> databases;
+    private List<DatabaseProperties> databases;
 
     /**
      * 表头
@@ -52,16 +52,17 @@ public class DataSourcesSettingUI extends DialogWrapper {
      */
     private int selectedRow = -1;
 
-    private final PersistentStateService persistentStateService;
-
-    private List<Consumer<List<DatabaseWithOutPwd>>> onRefreshListeners = new ArrayList<>();
+    /**
+     * 刷新监听器
+     */
+    @Delegate
+    private final RefreshDispatcher refreshDispatcher = new RefreshDispatcher();
 
     public DataSourcesSettingUI(@NotNull Project project) {
         super(true);
         init();
 
         this.project = project;
-        this.persistentStateService = PersistentStateService.getInstance(project);
 
         // 初始化界面数据
         renderUIData(project);
@@ -87,9 +88,6 @@ public class DataSourcesSettingUI extends DialogWrapper {
      */
     private void renderUIData(Project project) {
         // 数据库列表
-//        PersistentState persistentState = persistentStateService.getState();
-//        CommonProperties commonProperties = persistentState.getGeneratorProperties().getCommonProperties();
-//        databases = commonProperties.getDatabases();
         databases = PersistentExtConfig.loadDatabase();
 
         // 初始化表数据
@@ -119,8 +117,8 @@ public class DataSourcesSettingUI extends DialogWrapper {
             }
 
             // 清除密码
-            DatabaseWithOutPwd deleteDatabase = databases.get(selectedRow);
-            persistentStateService.clearPassword(deleteDatabase.getIdentifierName());
+            DatabaseProperties deleteDatabase = databases.get(selectedRow);
+            PasswordUtils.clearPassword(deleteDatabase.getIdentifierName());
 
             // 从数组列表中移除
             databases.remove(selectedRow);
@@ -131,7 +129,7 @@ public class DataSourcesSettingUI extends DialogWrapper {
 
             // 刷新
             refreshDatabaseTable(databases);
-            triggerRefresh(databases);
+            refreshDispatcher.triggerRefresh(databases);
         });
 
         // 编辑数据库
@@ -141,15 +139,18 @@ public class DataSourcesSettingUI extends DialogWrapper {
                 return;
             }
 
-            DatabaseWithOutPwd database = databases.get(selectedRow);
-            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, database, this);
+            DatabaseProperties database = databases.get(selectedRow);
+            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, database);
             editDatabaseSettingUI.show();
             selectedRow = -1;
         });
 
         // 添加数据库
         addBtn.addActionListener(e -> {
-            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, null, this);
+            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, null);
+            editDatabaseSettingUI.addListener(args -> {
+                refreshDatabaseTable(PersistentExtConfig.loadDatabase());
+            });
             editDatabaseSettingUI.show();
         });
     }
@@ -159,7 +160,7 @@ public class DataSourcesSettingUI extends DialogWrapper {
      *
      * @param databases 数据库列表
      */
-    public void refreshDatabaseTable(List<DatabaseWithOutPwd> databases) {
+    public void refreshDatabaseTable(List<DatabaseProperties> databases) {
         // 刷新数据库表
         TABLE_MODEL.setDataVector(null, TABLE_COLUMN_NAME);
         databases.forEach(database -> {
@@ -172,19 +173,6 @@ public class DataSourcesSettingUI extends DialogWrapper {
         });
 
         // 刷新数据库选择下拉框
-        triggerRefresh(databases);
-    }
-
-    private void triggerRefresh(List<DatabaseWithOutPwd> databases) {
-        if (onRefreshListeners.isEmpty()) {
-            return;
-        }
-        for (Consumer<List<DatabaseWithOutPwd>> onRefreshListener : onRefreshListeners) {
-            onRefreshListener.accept(databases);
-        }
-    }
-
-    public void addRefreshListener(Consumer<List<DatabaseWithOutPwd>> onRefresh) {
-        onRefreshListeners.add(onRefresh);
+        refreshDispatcher.triggerRefresh(databases);
     }
 }

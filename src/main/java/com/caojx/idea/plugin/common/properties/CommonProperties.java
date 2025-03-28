@@ -1,6 +1,6 @@
 package com.caojx.idea.plugin.common.properties;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseWithOutPwd;
+import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -45,7 +45,7 @@ public class CommonProperties implements Serializable {
      * 数据库列表
      * 1.3.7版本之后，数据库配置将会保存到 user.home/.myBatisCodeGenerator/ext-config.json 文件中
      */
-    private List<DatabaseWithOutPwd> databases = new ArrayList<>();
+    private List<DatabaseProperties> databases = new ArrayList<>();
 
     /**
      * 选择的数据库

@@ -1,6 +1,6 @@
 package com.caojx.idea.plugin.infrastructure.utils;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseWithPwd;
+import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.utils.MySQLDBHelper;
 import org.junit.Test;
@@ -12,7 +12,7 @@ public class MySQLDBHelperTest {
 
     @Test
     public void testGetTableInfo() {
-        DatabaseWithPwd database = new DatabaseWithPwd();
+        DatabaseSensitiveProperties database = new DatabaseSensitiveProperties();
         database.setDatabaseType("mysql");
         database.setHost("127.0.0.1");
         database.setPort(3306);

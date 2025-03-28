@@ -1,6 +1,6 @@
 package com.caojx.idea.plugin.persistent;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseWithOutPwd;
+import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.utils.JsonUtils;
 
 import java.io.IOException;
@@ -23,13 +23,13 @@ public class PersistentExtConfig implements Serializable {
     /**
      * 数据库配置，保存到json文件中，所有项目共享
      */
-    private List<DatabaseWithOutPwd> databases = new ArrayList<>();
+    private List<DatabaseProperties> databases = new ArrayList<>();
 
-    public List<DatabaseWithOutPwd> getDatabases() {
+    public List<DatabaseProperties> getDatabases() {
         return databases;
     }
 
-    public void setDatabases(List<DatabaseWithOutPwd> databases) {
+    public void setDatabases(List<DatabaseProperties> databases) {
         this.databases = databases;
     }
 
@@ -58,7 +58,7 @@ public class PersistentExtConfig implements Serializable {
     /**
      * 保存数据库配置
      */
-    public static void saveDatabases(List<DatabaseWithOutPwd> databases) {
+    public static void saveDatabases(List<DatabaseProperties> databases) {
         try {
             Path extConfigPath = PersistentExtConfig.getPersistentExtConfigPath();
             PersistentExtConfig persistentExtConfig = JsonUtils.parseObject(extConfigPath, PersistentExtConfig.class);
@@ -75,7 +75,7 @@ public class PersistentExtConfig implements Serializable {
     /**
      * 加载数据库配置
      */
-    public static List<DatabaseWithOutPwd> loadDatabase() {
+    public static List<DatabaseProperties> loadDatabase() {
         try {
             Path extConfigPath = PersistentExtConfig.getPersistentExtConfigPath();
             PersistentExtConfig persistentExtConfig = JsonUtils.parseObject(extConfigPath, PersistentExtConfig.class);
