@@ -63,16 +63,15 @@ public class SelectTableUI extends DialogWrapper {
         this.persistentStateService = PersistentStateService.getInstance(project);
         this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
         // 初始化界面
-        initUI();
+        initData();
         initListener();
     }
 
-    private void initUI() {
+    private void initData() {
         dataModel = new TableInfoTableModel();
         table.setModel(dataModel);
         databaseComboBox.setRenderer(new DatabaseWithOutPwdListCellRenderer());
-        List<DatabaseProperties> extDatabases = PersistentExtConfig.loadDatabase();
-        initDatabaseComBox(extDatabases, null);
+        refreshDatabaseTable();
     }
 
     private void initListener() {
@@ -83,6 +82,9 @@ public class SelectTableUI extends DialogWrapper {
         configDataBaseBtn.addActionListener(e -> {
             // 打开数据库配置界面
             DataSourcesSettingUI dataSourcesSettingUI = new DataSourcesSettingUI(project);
+            dataSourcesSettingUI.addListener(args -> {
+                refreshDatabaseTable();
+            });
             dataSourcesSettingUI.show();
         });
         // 跳转到生成代码配置页面
@@ -101,6 +103,11 @@ public class SelectTableUI extends DialogWrapper {
         });
     }
 
+    private void refreshDatabaseTable() {
+        List<DatabaseProperties> extDatabases = PersistentExtConfig.loadDatabase();
+        initDatabaseComBox(extDatabases, null);
+    }
+
     private void searchTables() {
         DatabaseProperties database = (DatabaseProperties) databaseComboBox.getSelectedItem();
         if (database == null) {
@@ -111,22 +118,11 @@ public class SelectTableUI extends DialogWrapper {
             DatabaseSensitiveProperties databaseWithPwd = convertDatabaseWithPwd(database);
             Database mysql = DBHelper.getMySql(databaseWithPwd, new HashMap<>(4));
 
-            String tableNamePattern = StringUtils.isBlank(tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
-            List<TableInfo> tableList = mysql.getTablesAndFields(tableNamePattern);
+            String tableNamePattern = StringUtils.isBlank(
+                    tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
+            List<TableInfo> tableList = mysql.getTables(tableNamePattern);
 
-            dataModel.clearData();
-
-            int rows = Math.min(tableList.size(), 30);
-            for (int i = 0; i < rows; i++) {
-                dataModel.addData(tableList.get(i));
-            }
-
-            // 设置列为复选框
-            TableColumn tableColumn = table.getColumnModel().getColumn(0);
-            tableColumn.setCellRenderer(new TableInfoTableCellRenderer());
-            tableColumn.setCellEditor(new DefaultCellEditor(new JCheckBox()));
-
-            tableColumn.setMaxWidth(100);
+            dataModel.setDataList(tableList);
         } catch (Exception ex) {
             MyMessages.showWarningDialog(project, "数据库连接错误,请检查配置.", "Warning");
         }
@@ -148,14 +144,16 @@ public class SelectTableUI extends DialogWrapper {
         // 获取代码生成配置
         GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
         // 获取表列表
-        int[] selectedRows = table.getSelectedRows();
-        List<String> selectedTableNames = dataModel.getSelectedTableNames(selectedRows);
+        List<String> selectedTableNames = dataModel.getSelectedTableNames();
         if (CollectionUtils.isEmpty(selectedTableNames)) {
             MyMessages.showWarningDialog(project, "请选择要生成的表", "info");
             return;
         }
-        DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
-        List<TableInfo> tables = getTables(database, generatorProperties.getEntityProperties(), selectedTableNames);
+        DatabaseProperties database = (DatabaseProperties) databaseComboBox.getSelectedItem();
+        DatabaseSensitiveProperties databaseWithPwd = new DatabaseSensitiveProperties(database,
+                PasswordUtils.getPassword(database.getIdentifierName()));
+        List<TableInfo> tables = getTables(databaseWithPwd, generatorProperties.getEntityProperties(),
+                selectedTableNames);
 
         // 校验数据
         GeneratorContext generatorContext = new GeneratorContext();
@@ -179,10 +177,13 @@ public class SelectTableUI extends DialogWrapper {
         MyMessages.showInfoMessage(project, "生成代码执行完成", "info");
     }
 
-    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig, EntityProperties entityProperties, List<String> selectedTableNames) {
+    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig,
+                                      EntityProperties entityProperties,
+                                      List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DBHelper.getMySql(databaseConfig, JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
+            Database database = DBHelper.getMySql(databaseConfig,
+                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
             return database.getTablesAndFields(selectedTableNames);
         } catch (SQLException e) {
             MyMessages.showWarningDialog(project, "获取表信息失败", "info");

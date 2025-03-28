@@ -2,57 +2,42 @@ package io.github.pdkst.idea.plugin.common.utils;
 
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 
-import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class TableInfoTableModel extends AbstractTableModel {
-    private final String[] columnNames = {"选择", "表名", "注释"};
-    private final List<TableInfo> dataList = new ArrayList<>();
-    private final Set<TableInfo> selectedSet = new HashSet<>(); // 新增 Set 用于保存选中的值
+public class TableInfoTableModel extends DefaultTableModel {
+    private static final String[] TABLE_COLUMN_NAME = {"选择", "表名", "注释"};
+    private List<TableInfo> dataList = new ArrayList<>();
+    private Set<TableInfo> selectedSet = new HashSet<>();
 
-    @Override
-    public int getRowCount() {
-        return dataList.size();
+    public TableInfoTableModel() {
+        super(null, TABLE_COLUMN_NAME);
     }
 
     @Override
-    public int getColumnCount() {
-        return columnNames.length;
+    public boolean isCellEditable(int row, int column) {
+        // 只允许编辑第一列
+        return column == 0;
     }
 
     @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        TableInfo tableInfo = dataList.get(rowIndex);
-        switch (columnIndex) {
-            case 0:
-                return selectedSet.contains(tableInfo); // 检查是否在选中集合中
-            case 1:
-                return tableInfo.getName();
-            case 2:
-                return tableInfo.getComment();
-        }
-        return null;
+    public Class<?> getColumnClass(int columnIndex) {
+        return (columnIndex == 0) ? Boolean.class : String.class;
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 0) {
-            TableInfo tableInfo = dataList.get(rowIndex);
-            if ((Boolean) aValue) {
-                selectedSet.add(tableInfo); // 添加到选中集合
-            } else {
-                selectedSet.remove(tableInfo); // 从选中集合中移除
+    public void setValueAt(Object aValue, int row, int column) {
+        super.setValueAt(aValue, row, column);
+        if (column == 0) {
+            TableInfo tableInfo = dataList.get(row);
+            if ((boolean) aValue) {
+                selectedSet.add(tableInfo);
+                refreshData();
             }
-            fireTableCellUpdated(rowIndex, columnIndex);
         }
-    }
-
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 0; // 只有第一列可编辑
     }
 
     /**
@@ -62,26 +47,39 @@ public class TableInfoTableModel extends AbstractTableModel {
         if (dataList.isEmpty()) {
             return;
         }
-        int oldSize = dataList.size();
-        dataList.clear();
-        selectedSet.clear(); // 清空选中集合
-        // 通知表格模型数据已经改变
-        fireTableRowsDeleted(0, oldSize - 1);
+        dataList = new ArrayList<>();
+        // 清空选中集合
+        selectedSet = new HashSet<>();
+        refreshData();
     }
 
-    public void addData(TableInfo tableInfo) {
-        dataList.add(tableInfo);
-        fireTableRowsInserted(dataList.size() - 1, dataList.size() - 1);
+    public void setDataList(List<TableInfo> tableInfos) {
+        dataList = new ArrayList<>(tableInfos);
+        refreshData();
     }
 
-    public List<String> getSelectedTableNames(int[] selectedRows) {
-        if (selectedRows == null || selectedRows.length == 0) {
+    private void refreshData() {
+        setDataVector(buildDataArray(), TABLE_COLUMN_NAME);
+    }
+
+    private Object[][] buildDataArray() {
+        Object[][] rowArray = new Object[dataList.size()][3];
+        for (int i = 0; i < dataList.size(); i++) {
+            TableInfo tableInfo = dataList.get(i);
+            rowArray[i][0] = selectedSet.contains(tableInfo); // 检查是否在选中集合中
+            rowArray[i][1] = tableInfo.getName();
+            rowArray[i][2] = tableInfo.getComment();
+        }
+        return rowArray;
+    }
+
+    public List<String> getSelectedTableNames() {
+        if (selectedSet == null || selectedSet.isEmpty()) {
             return new ArrayList<>();
         }
         List<String> selectedTableNames = new ArrayList<>();
-        for (int row : selectedRows) {
-            TableInfo tableInfo = dataList.get(row);
-            selectedTableNames.add(tableInfo.getName());
+        for (TableInfo selectedRow : selectedSet) {
+            selectedTableNames.add(selectedRow.getName());
         }
         return selectedTableNames;
     }
