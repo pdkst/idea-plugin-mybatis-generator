@@ -3,10 +3,12 @@ package io.github.pdkst.idea.plugin.persistent;
 
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,6 +27,7 @@ import java.util.List;
         // 存放文件名
         storages = @Storage("mybatis-generator-database-list-plugin.xml"))
 public class DatabaseListStateService implements PersistentStateComponent<DatabaseListState> {
+    @Getter
     private List<DatabaseSensitiveProperties> databases;
 
     @Override
@@ -54,5 +57,9 @@ public class DatabaseListStateService implements PersistentStateComponent<Databa
             PasswordUtils.setPassword(database.getIdentifierName(), database.getPassword());
         }
         this.databases = databases;
+    }
+
+    public static DatabaseListStateService getInstance() {
+        return ApplicationManager.getApplication().getService(DatabaseListStateService.class);
     }
 }

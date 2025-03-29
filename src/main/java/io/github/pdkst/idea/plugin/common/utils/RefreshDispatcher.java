@@ -4,6 +4,7 @@ package io.github.pdkst.idea.plugin.common.utils;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -23,8 +24,8 @@ public class RefreshDispatcher {
         this.refreshList = refreshList;
     }
 
-    public void addListener(RefreshListener refreshListener) {
-        refreshList.add(refreshListener);
+    public void addListener(RefreshListener... refreshListeners) {
+        refreshList.addAll(Arrays.asList(refreshListeners));
     }
 
     public void removeListener(RefreshListener refreshListener) {

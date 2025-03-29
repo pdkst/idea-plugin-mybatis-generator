@@ -3,6 +3,7 @@ package io.github.pdkst.idea.plugin.ui;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.pdkst.idea.plugin.common.utils.RefreshDispatcher;
+import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * @author pdkst
  * @since 2025/03/28
  */
-public abstract class AbstractDialog extends DialogWrapper {
+public abstract class AbstractDialog extends DialogWrapper implements RefreshListener {
 
     /**
      * 刷新监听器
@@ -20,5 +21,15 @@ public abstract class AbstractDialog extends DialogWrapper {
 
     public AbstractDialog(@Nullable Project project) {
         super(project);
+    }
+
+    public AbstractDialog(@Nullable Project project, RefreshListener... listener) {
+        super(project);
+        refreshDispatcher.addListener(listener);
+    }
+
+    @Override
+    public void refresh(Object... args) {
+        // 被刷新时候执行
     }
 }
