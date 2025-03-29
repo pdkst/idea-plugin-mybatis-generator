@@ -9,6 +9,8 @@ import com.intellij.openapi.project.Project;
 import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
+import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
+import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,25 +42,36 @@ public class EditDatabaseSettingUI extends AbstractDialog {
     private JTextField urlTf;
 
     private final Project project;
+    private final DatabaseListStateService databaseListStateService;
 
     /**
      * 正在编辑的数据库
      */
-    private final DatabaseProperties editDatabase;
+    private final DatabaseSensitiveProperties editDatabase;
 
 
-    public EditDatabaseSettingUI(@NotNull Project project, @Nullable DatabaseProperties editDatabase) {
-        super(project);
+    public EditDatabaseSettingUI(@NotNull Project project,
+                                 @Nullable DatabaseSensitiveProperties editDatabase,
+                                 RefreshListener... refreshListeners) {
+        super(project, refreshListeners);
         init();
 
         this.project = project;
-        this.editDatabase = editDatabase;
+        this.editDatabase = toNewInstance(editDatabase);
+        this.databaseListStateService = DatabaseListStateService.getInstance();
 
         // 初始化界面数据
         initData();
 
         // 创建事件监听器
         initActionListener(project);
+    }
+
+    private static @Nullable DatabaseSensitiveProperties toNewInstance(@Nullable DatabaseSensitiveProperties editDatabase) {
+        if (editDatabase == null) {
+            return null;
+        }
+        return new DatabaseSensitiveProperties(editDatabase);
     }
 
     @Override
@@ -87,8 +100,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
             databaseNameTf.setText(StringUtils.trim(editDatabase.getDatabaseName()));
             userNameTf.setText(StringUtils.trim(editDatabase.getUserName()));
 
-            String password = PasswordUtils.getPassword(editDatabase.getIdentifierName());
-            passwordTf.setText(password);
+            passwordTf.setText(editDatabase.getPassword());
 
             if (StringUtils.isNotBlank(editDatabase.getUrl())) {
                 urlTf.setText(editDatabase.getUrl());
@@ -248,7 +260,6 @@ public class EditDatabaseSettingUI extends AbstractDialog {
         // 保存
         saveBtn.addActionListener(e -> {
 
-            final List<DatabaseProperties> databases = PersistentExtConfig.loadDatabase();
             DatabaseSensitiveProperties formDatabase = getFormDatabase();
 
             // 连接数据库测试
@@ -256,19 +267,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
                 MyMessages.showWarningDialog(project, "数据库连接错误，请检查配置.", "Warning");
                 return;
             }
-
-            // 移除相同的数据库
-            databases.removeIf(next -> next.getIdentifierName().equals(formDatabase.getIdentifierName()));
-
-            // 存储密码
-            PasswordUtils.setPassword(formDatabase.getIdentifierName(), formDatabase.getPassword());
-
-            // 添加到列表
-            DatabaseProperties database = new DatabaseProperties(formDatabase);
-            databases.add(database);
-
-            // 保存数据库配置
-            PersistentExtConfig.saveDatabases(databases);
+            databaseListStateService.replaceByIdentify(formDatabase);
 
             // 刷新列表
             triggerRefresh();

@@ -1,9 +1,11 @@
 package io.github.pdkst.idea.plugin.common.utils;
 
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -22,9 +24,11 @@ public class DatabaseTableModel extends DefaultTableModel {
         super(null, TABLE_COLUMN_NAME);
     }
 
-    public void setDatabases(List<DatabaseProperties> databases) {
+    public void setDatabases(List<? extends DatabaseProperties> databases) {
         this.databases.clear();
-        this.databases.addAll(databases);
+        if (CollectionUtils.isNotEmpty(databases)) {
+            this.databases.addAll(databases);
+        }
         setDataVector(buildDataArray(), TABLE_COLUMN_NAME);
     }
 

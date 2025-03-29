@@ -1,12 +1,15 @@
 package io.github.pdkst.idea.plugin.ui;
 
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.intellij.openapi.project.Project;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseTableModel;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.common.utils.RefreshDispatcher;
+import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
+import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,17 +31,19 @@ public class DataSourcesSettingUI extends AbstractDialog {
     private JButton editBtn;
 
     private final Project project;
+    private final DatabaseListStateService databaseListStateService;
 
     /**
      * 表数据模型
      */
     public static DatabaseTableModel tableModel = new DatabaseTableModel();
 
-    public DataSourcesSettingUI(@NotNull Project project) {
-        super(project);
+    public DataSourcesSettingUI(@NotNull Project project, RefreshListener... listeners) {
+        super(project, listeners);
         init();
 
         this.project = project;
+        this.databaseListStateService = DatabaseListStateService.getInstance();
 
         // 初始化界面数据
         initData(project);
@@ -71,6 +76,18 @@ public class DataSourcesSettingUI extends AbstractDialog {
     }
 
     /**
+     * 刷新数据库表
+     */
+    public void refreshDatabaseTable() {
+        final List<DatabaseSensitiveProperties> databases = databaseListStateService.getDatabases();
+        // 刷新数据库表
+        tableModel.setDatabases(databases);
+
+        // 刷新数据库选择下拉框
+        triggerRefresh(databases);
+    }
+
+    /**
      * 创建事件监听器
      *
      * @param project 项目
@@ -85,20 +102,12 @@ public class DataSourcesSettingUI extends AbstractDialog {
                 return;
             }
 
-            final List<DatabaseProperties> databases = PersistentExtConfig.loadDatabase();
-            // 清除密码
-            DatabaseProperties deleteDatabase = databases.get(selectedRow);
-            PasswordUtils.clearPassword(deleteDatabase.getIdentifierName());
-
             // 从数组列表中移除
-            databases.remove(selectedRow);
-
-            // 更新数据库配置
-            PersistentExtConfig.saveDatabases(databases);
+            databaseListStateService.remove(selectedRow);
 
             // 刷新
             refreshDatabaseTable();
-            triggerRefresh(databases);
+            triggerRefresh();
         });
 
         // 编辑数据库
@@ -108,34 +117,16 @@ public class DataSourcesSettingUI extends AbstractDialog {
                 MyMessages.showWarningDialog(project, "请选择需要编辑的数据库", "Warning");
                 return;
             }
-            final List<DatabaseProperties> databases = PersistentExtConfig.loadDatabase();
-            DatabaseProperties database = databases.get(selectedRow);
-            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, database);
-            editDatabaseSettingUI.addListener(args -> {
-                refreshDatabaseTable();
-            });
+            final List<DatabaseSensitiveProperties> databases = databaseListStateService.getDatabases();
+            DatabaseSensitiveProperties database = databases.get(selectedRow);
+            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, database, this);
             editDatabaseSettingUI.show();
         });
 
         // 添加数据库
         addBtn.addActionListener(e -> {
-            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, null);
-            editDatabaseSettingUI.addListener(args -> {
-                refreshDatabaseTable();
-            });
+            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, null, this);
             editDatabaseSettingUI.show();
         });
-    }
-
-    /**
-     * 刷新数据库表
-     */
-    public void refreshDatabaseTable() {
-        final List<DatabaseProperties> databases = PersistentExtConfig.loadDatabase();
-        // 刷新数据库表
-        tableModel.setDatabases(databases);
-
-        // 刷新数据库选择下拉框
-        triggerRefresh(databases);
     }
 }

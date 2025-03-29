@@ -10,7 +10,6 @@ import com.caojx.idea.plugin.generator.AbstractGeneratorService;
 import com.caojx.idea.plugin.generator.GeneratorContext;
 import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
 import com.caojx.idea.plugin.generator.IGeneratorService;
-import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.caojx.idea.plugin.ui.GeneratorSettingUI;
 import com.intellij.openapi.project.Project;
@@ -21,6 +20,7 @@ import io.github.pdkst.idea.plugin.common.utils.DatabaseWithOutPwdListCellRender
 import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
+import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +38,7 @@ public class SelectTableUI extends DialogWrapper {
     private final Project project;
     private final PersistentStateService persistentStateService;
     private final GlobalPersistentStateService globalPersistentStateService;
+    private final DatabaseListStateService databaseListStateService;
 
     /**
      * 生成代码业务接口
@@ -65,6 +66,7 @@ public class SelectTableUI extends DialogWrapper {
         this.project = project;
         this.persistentStateService = PersistentStateService.getInstance(project);
         this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
+        this.databaseListStateService = DatabaseListStateService.getInstance();
         // 初始化界面
         initData();
         initListener();
@@ -107,7 +109,7 @@ public class SelectTableUI extends DialogWrapper {
     }
 
     private void refreshDatabaseTable() {
-        List<DatabaseProperties> extDatabases = PersistentExtConfig.loadDatabase();
+        List<DatabaseSensitiveProperties> extDatabases = databaseListStateService.getDatabases();
         initDatabaseComBox(extDatabases, null);
     }
 
@@ -200,7 +202,7 @@ public class SelectTableUI extends DialogWrapper {
      * @param databases                数据库列表
      * @param selectedShowDatabaseName 选中的数据库名
      */
-    private void initDatabaseComBox(List<DatabaseProperties> databases, String selectedShowDatabaseName) {
+    private void initDatabaseComBox(List<DatabaseSensitiveProperties> databases, String selectedShowDatabaseName) {
         // 数据库为空
         databaseComboBox.removeAllItems();
 
