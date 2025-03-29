@@ -2,6 +2,7 @@ package com.caojx.idea.plugin.persistent;
 
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.utils.JsonUtils;
+import lombok.Data;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,20 +19,13 @@ import java.util.Objects;
  * @author caojx
  * @since 2024/8/12 10:17
  */
+@Data
 public class PersistentExtConfig implements Serializable {
 
     /**
      * 数据库配置，保存到json文件中，所有项目共享
      */
     private List<DatabaseProperties> databases = new ArrayList<>();
-
-    public List<DatabaseProperties> getDatabases() {
-        return databases;
-    }
-
-    public void setDatabases(List<DatabaseProperties> databases) {
-        this.databases = databases;
-    }
 
 
     /**

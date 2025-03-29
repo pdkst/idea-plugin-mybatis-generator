@@ -1,11 +1,7 @@
 package com.caojx.idea.plugin.ui;
 
-import com.caojx.idea.plugin.common.properties.EntityProperties;
-import com.caojx.idea.plugin.common.properties.GeneratorProperties;
 import com.caojx.idea.plugin.common.utils.ClassUtils;
 import com.caojx.idea.plugin.common.utils.MyMessages;
-import com.caojx.idea.plugin.persistent.PersistentState;
-import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -19,10 +15,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.JDBCType;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * 自定义jdbc于java映射关系

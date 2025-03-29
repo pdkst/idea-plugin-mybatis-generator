@@ -49,8 +49,11 @@
         <!--持久化
         see https://plugins.jetbrains.com/docs/intellij/persisting-state-of-components.html
         -->
-        <applicationService serviceImplementation="io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService"/>
+        <applicationService
+                serviceImplementation="io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService"/>
+        <applicationService serviceImplementation="io.github.pdkst.idea.plugin.persistent.DatabaseListStateService"/>
         <projectService serviceImplementation="com.caojx.idea.plugin.persistent.PersistentStateService"/>
+        <projectService serviceImplementation="io.github.pdkst.idea.plugin.persistent.DatabaseStateService"/>
 
         <!--工具栏，暂时去掉侧边工具栏，生成代码是低频操作，没必要占用侧边工具栏-->
         <!--        <toolWindow id="MyBatisCodeGenerator" factoryClass="com.caojx.idea.plugin.ui.GeneratorWindowFactory" anchor="right"/>-->
