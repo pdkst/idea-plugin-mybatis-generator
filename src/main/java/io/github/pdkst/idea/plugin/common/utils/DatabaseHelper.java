@@ -7,9 +7,10 @@ import java.sql.JDBCType;
 import java.util.Map;
 
 @UtilityClass
-public class DBHelper {
+public class DatabaseHelper {
 
-    public static Database getMySql(DatabaseSensitiveProperties databaseWithPwd, Map<JDBCType, Class<?>> customerJdbcTypeMappingMap) {
+    public static Database getMySql(DatabaseSensitiveProperties databaseWithPwd,
+                                    Map<JDBCType, Class<?>> customerJdbcTypeMappingMap) {
         return new MySqlDatabase(databaseWithPwd, customerJdbcTypeMappingMap);
     }
 }

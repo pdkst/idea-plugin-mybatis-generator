@@ -4,9 +4,10 @@ import com.caojx.idea.plugin.common.enums.DataBaseTypeEnum;
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
-import com.caojx.idea.plugin.common.utils.MySQLDBHelper;
 import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.intellij.openapi.project.Project;
+import io.github.pdkst.idea.plugin.common.utils.Database;
+import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -306,13 +307,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
      * @param databaseWithPwd 数据库
      */
     private boolean testConnectionDB(DatabaseSensitiveProperties databaseWithPwd) {
-        try {
-            MySQLDBHelper dbHelper = new MySQLDBHelper(databaseWithPwd, new HashMap<>(4));
-            dbHelper.testDatabase();
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return false;
+        final Database mySql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
+        return mySql.testDatabase();
     }
 }

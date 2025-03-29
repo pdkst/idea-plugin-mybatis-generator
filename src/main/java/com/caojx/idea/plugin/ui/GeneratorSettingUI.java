@@ -5,8 +5,18 @@ import com.caojx.idea.plugin.common.enums.FrameworkTypeEnum;
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
-import com.caojx.idea.plugin.common.properties.*;
-import com.caojx.idea.plugin.common.utils.*;
+import com.caojx.idea.plugin.common.properties.CommonProperties;
+import com.caojx.idea.plugin.common.properties.ControllerProperties;
+import com.caojx.idea.plugin.common.properties.EntityProperties;
+import com.caojx.idea.plugin.common.properties.FacadeImplProperties;
+import com.caojx.idea.plugin.common.properties.FacadeProperties;
+import com.caojx.idea.plugin.common.properties.GeneratorProperties;
+import com.caojx.idea.plugin.common.properties.MapperProperties;
+import com.caojx.idea.plugin.common.properties.MapperXmlProperties;
+import com.caojx.idea.plugin.common.properties.ServiceImplProperties;
+import com.caojx.idea.plugin.common.properties.ServiceProperties;
+import com.caojx.idea.plugin.common.utils.MyMessages;
+import com.caojx.idea.plugin.common.utils.UIUtils;
 import com.caojx.idea.plugin.generator.AbstractGeneratorService;
 import com.caojx.idea.plugin.generator.GeneratorContext;
 import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
@@ -18,10 +28,12 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
+import io.github.pdkst.idea.plugin.common.utils.Database;
+import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
+import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
-import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.ui.DataSourcesSettingUI;
 import lombok.Setter;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,8 +48,15 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.JDBCType;
-import java.util.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * 代码生成配置UI
@@ -608,12 +627,12 @@ public class GeneratorSettingUI extends DialogWrapper {
         queryTableBtn.addActionListener(e -> {
             try {
                 DatabaseSensitiveProperties databaseWithPwd = convertDatabaseWithPwd(selectedDatabase);
-                MySQLDBHelper dbHelper = new MySQLDBHelper(databaseWithPwd, new HashMap<>(4));
+                final Database mySql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
 
                 // 获取表名列表
                 String tableNamePattern = StringUtils.isBlank(
                         tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
-                List<TableInfo> tableList = dbHelper.getTableInfosWithoutFields(tableNamePattern);
+                List<TableInfo> tableList = mySql.getTables(tableNamePattern);
 
                 // 重置表数据
                 restTableData();
@@ -849,8 +868,12 @@ public class GeneratorSettingUI extends DialogWrapper {
         // 转换为jdbcType, clazz
         final Map<String, String> jdbcTypeMappingMap = globalPersistentStateService.getCustomerJdbcTypeMappingMap();
         final Map<JDBCType, Class<?>> newCustomerJdbcTypeMappingMap = JdbcTypeUtils.toJdbcTypeMap(jdbcTypeMappingMap);
-        MySQLDBHelper mySQLDBHelper = new MySQLDBHelper(database, newCustomerJdbcTypeMappingMap);
-        return mySQLDBHelper.getTableInfos(tableNames, true);
+        Database mysql = DatabaseHelper.getMySql(database, newCustomerJdbcTypeMappingMap);
+        try {
+            return mysql.getTablesAndFields(new ArrayList<>(tableNames));
+        } catch (SQLException e) {
+            return new ArrayList<>();
+        }
     }
 
     /**

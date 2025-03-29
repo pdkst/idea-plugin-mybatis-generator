@@ -15,15 +15,18 @@ import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.caojx.idea.plugin.ui.GeneratorSettingUI;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import io.github.pdkst.idea.plugin.common.utils.*;
-import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.common.utils.Database;
+import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
+import io.github.pdkst.idea.plugin.common.utils.DatabaseWithOutPwdListCellRenderer;
+import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
+import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
+import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -116,7 +119,7 @@ public class SelectTableUI extends DialogWrapper {
         }
         try {
             DatabaseSensitiveProperties databaseWithPwd = convertDatabaseWithPwd(database);
-            Database mysql = DBHelper.getMySql(databaseWithPwd, new HashMap<>(4));
+            Database mysql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
 
             String tableNamePattern = StringUtils.isBlank(
                     tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
@@ -182,7 +185,7 @@ public class SelectTableUI extends DialogWrapper {
                                       List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DBHelper.getMySql(databaseConfig,
+            Database database = DatabaseHelper.getMySql(databaseConfig,
                     JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
             return database.getTablesAndFields(selectedTableNames);
         } catch (SQLException e) {
