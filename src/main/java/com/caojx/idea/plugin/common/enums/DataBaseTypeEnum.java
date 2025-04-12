@@ -4,10 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 /**
  * 数据库类型枚举
  *
@@ -18,27 +14,20 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public enum DataBaseTypeEnum {
 
-    MYSQL("mysql", "MySQL"),
+    /**
+     * mysql
+     */
+    MySQL("mysql"),
+    /**
+     * mariadb
+     */
+    MariaDb("mariadb"),
 
 //    Oracle,
 
     ;
 
     private final String databaseType;
-    private final String description;
-
-    /**
-     * 获取数据库类型
-     *
-     * @return 数据库类型列表
-     */
-    public static List<String> getDatabaseTypes() {
-        List<String> list = new ArrayList<>();
-        for (DataBaseTypeEnum dataBaseTypeEnum : DataBaseTypeEnum.values()) {
-            list.add(dataBaseTypeEnum.getDescription());
-        }
-        return list;
-    }
 
     /**
      * 根据数据库类型获取枚举
@@ -52,7 +41,7 @@ public enum DataBaseTypeEnum {
                 return dataBaseTypeEnum;
             }
         }
-        return null;
+        return MySQL;
     }
 
 }

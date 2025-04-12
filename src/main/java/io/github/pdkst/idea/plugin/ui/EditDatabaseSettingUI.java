@@ -4,11 +4,9 @@ import com.caojx.idea.plugin.common.enums.DataBaseTypeEnum;
 import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
-import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.intellij.openapi.project.Project;
 import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
-import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
 import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
 import org.apache.commons.lang3.StringUtils;
@@ -19,7 +17,6 @@ import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,7 +27,7 @@ import java.util.Objects;
  */
 public class EditDatabaseSettingUI extends AbstractDialog {
     private JPanel mainPanel;
-    private JComboBox<String> databaseTypeComboBox;
+    private JComboBox<DataBaseTypeEnum> databaseTypeComboBox;
     private JTextField hostTf;
     private JTextField portTf;
     private JTextField databaseNameTf;
@@ -90,13 +87,14 @@ public class EditDatabaseSettingUI extends AbstractDialog {
     private void initData() {
 
         // 设置数据库类型下拉框
-        for (String databaseType : DataBaseTypeEnum.getDatabaseTypes()) {
+        for (DataBaseTypeEnum databaseType : DataBaseTypeEnum.values()) {
             databaseTypeComboBox.addItem(databaseType);
         }
 
         // 初始化数据
         if (Objects.nonNull(editDatabase)) {
-            databaseTypeComboBox.setSelectedItem(StringUtils.trim(editDatabase.getDatabaseType()));
+            databaseTypeComboBox.setSelectedItem(
+                    DataBaseTypeEnum.getEnumByDatabaseType(editDatabase.getDatabaseType()));
             hostTf.setText(StringUtils.trim(editDatabase.getHost()));
             portTf.setText(String.valueOf(editDatabase.getPort()));
             databaseNameTf.setText(StringUtils.trim(editDatabase.getDatabaseName()));
@@ -121,7 +119,8 @@ public class EditDatabaseSettingUI extends AbstractDialog {
      * @return 数据库连接url
      */
     private String buildURL(String host, String port, String dataBaseName, String propertiesStr) {
-        String url = "jdbc:mysql://" + host + ":" + port + "/" + dataBaseName;
+        final DataBaseTypeEnum selectedItem = (DataBaseTypeEnum) databaseTypeComboBox.getSelectedItem();
+        String url = "jdbc:" + selectedItem.getDatabaseType() + "://" + host + ":" + port + "/" + dataBaseName;
         if (StringUtils.isNotBlank(propertiesStr)) {
             return url + "?" + propertiesStr;
         }
@@ -166,7 +165,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
 
         // 属性
         DatabaseProperties databaseWithOutPwd = new DatabaseProperties();
-        databaseWithOutPwd.setDatabaseType(DataBaseTypeEnum.MYSQL.getDatabaseType());
+        databaseWithOutPwd.setDatabaseType(DataBaseTypeEnum.MySQL.getDatabaseType());
         databaseWithOutPwd.setHost(host);
         databaseWithOutPwd.setPort(port);
         databaseWithOutPwd.setDatabaseName(databaseName);
@@ -228,15 +227,14 @@ public class EditDatabaseSettingUI extends AbstractDialog {
             public void keyReleased(KeyEvent e) {
                 DatabaseProperties databaseWithOutPwd = parseDatabaseProperties(urlTf.getText(), userNameTf.getText());
                 if (Objects.isNull(databaseWithOutPwd)) {
-                    databaseTypeComboBox.setSelectedItem(DataBaseTypeEnum.MYSQL.getDescription());
+                    databaseTypeComboBox.setSelectedItem(DataBaseTypeEnum.MySQL);
                     hostTf.setText("");
                     portTf.setText("");
                     databaseNameTf.setText("");
                     return;
                 } else {
-                    databaseTypeComboBox.setSelectedItem(
-                            StringUtils.isNotBlank(databaseWithOutPwd.getDatabaseType()) ? StringUtils.trim(
-                                    databaseWithOutPwd.getDatabaseType()) : DataBaseTypeEnum.MYSQL.getDatabaseType());
+                    final String databaseType = databaseWithOutPwd.getDatabaseType();
+                    databaseTypeComboBox.setSelectedItem(DataBaseTypeEnum.getEnumByDatabaseType(databaseType));
                     hostTf.setText(StringUtils.isNotBlank(databaseWithOutPwd.getHost()) ? StringUtils.trim(
                             databaseWithOutPwd.getHost()) : "");
                     portTf.setText(Objects.nonNull(databaseWithOutPwd.getPort()) ? String.valueOf(
@@ -293,7 +291,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
         DatabaseSensitiveProperties database = new DatabaseSensitiveProperties();
         database.setDatabaseType(StringUtils.isNotBlank(
                 databaseWithOutPwd.getDatabaseType()) ? databaseWithOutPwd.getDatabaseType() :
-                DataBaseTypeEnum.MYSQL.getDatabaseType());
+                DataBaseTypeEnum.MySQL.getDatabaseType());
         database.setHost(databaseWithOutPwd.getHost());
         database.setPort(databaseWithOutPwd.getPort());
         database.setDatabaseName(databaseWithOutPwd.getDatabaseName());
