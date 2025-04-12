@@ -135,7 +135,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         // 表名转基础驼峰
         String tableName = tableInfo.getName();
         // 移除表名前缀
-        final String tableNamePrefix = generatorProperties.getCommonProperties().getTableNamePrefix();
+        final String tableNamePrefix = generatorContext.getDatabaseState().getTablePrefix();
         if (StringUtils.isNotBlank(tableNamePrefix)) {
             tableName = StringUtils.removeStartIgnoreCase(tableName, tableNamePrefix);
             tableName = StringUtils.removeStartIgnoreCase(tableName, "_");

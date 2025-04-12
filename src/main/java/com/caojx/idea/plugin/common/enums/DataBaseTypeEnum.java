@@ -18,13 +18,14 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public enum DataBaseTypeEnum {
 
-    MYSQL("mysql"),
+    MYSQL("mysql", "MySQL"),
 
 //    Oracle,
 
     ;
 
     private final String databaseType;
+    private final String description;
 
     /**
      * 获取数据库类型
@@ -34,7 +35,7 @@ public enum DataBaseTypeEnum {
     public static List<String> getDatabaseTypes() {
         List<String> list = new ArrayList<>();
         for (DataBaseTypeEnum dataBaseTypeEnum : DataBaseTypeEnum.values()) {
-            list.add(dataBaseTypeEnum.name());
+            list.add(dataBaseTypeEnum.getDescription());
         }
         return list;
     }

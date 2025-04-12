@@ -90,7 +90,9 @@ public class EditDatabaseSettingUI extends AbstractDialog {
     private void initData() {
 
         // 设置数据库类型下拉框
-        DataBaseTypeEnum.getDatabaseTypes().forEach(databaseType -> databaseTypeComboBox.addItem(databaseType));
+        for (String databaseType : DataBaseTypeEnum.getDatabaseTypes()) {
+            databaseTypeComboBox.addItem(databaseType);
+        }
 
         // 初始化数据
         if (Objects.nonNull(editDatabase)) {
@@ -226,7 +228,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
             public void keyReleased(KeyEvent e) {
                 DatabaseProperties databaseWithOutPwd = parseDatabaseProperties(urlTf.getText(), userNameTf.getText());
                 if (Objects.isNull(databaseWithOutPwd)) {
-                    databaseTypeComboBox.setSelectedItem(DataBaseTypeEnum.MYSQL.name());
+                    databaseTypeComboBox.setSelectedItem(DataBaseTypeEnum.MYSQL.getDescription());
                     hostTf.setText("");
                     portTf.setText("");
                     databaseNameTf.setText("");

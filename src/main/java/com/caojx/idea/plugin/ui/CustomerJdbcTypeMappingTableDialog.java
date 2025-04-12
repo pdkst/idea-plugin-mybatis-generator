@@ -7,6 +7,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.ui.GeneratorSettingUI;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,8 +44,8 @@ public class CustomerJdbcTypeMappingTableDialog extends DialogWrapper {
     private final GeneratorSettingUI generatorSettingUI;
     private final GlobalPersistentStateService globalPersistentStateService;
 
-    protected CustomerJdbcTypeMappingTableDialog(@NotNull Project project,
-                                                 @NotNull GeneratorSettingUI generatorSettingUI) {
+    public CustomerJdbcTypeMappingTableDialog(@NotNull Project project,
+                                              @NotNull GeneratorSettingUI generatorSettingUI) {
         super(project);
         init();
         setTitle("Jdbc类型映射配置");

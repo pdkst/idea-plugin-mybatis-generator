@@ -1,4 +1,4 @@
-package com.caojx.idea.plugin.ui;
+package io.github.pdkst.idea.plugin.ui;
 
 import com.caojx.idea.plugin.common.constants.Constant;
 import com.caojx.idea.plugin.common.enums.FrameworkTypeEnum;
@@ -17,16 +17,13 @@ import com.caojx.idea.plugin.common.properties.ServiceImplProperties;
 import com.caojx.idea.plugin.common.properties.ServiceProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.common.utils.UIUtils;
-import com.caojx.idea.plugin.generator.AbstractGeneratorService;
-import com.caojx.idea.plugin.generator.GeneratorContext;
 import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
 import com.caojx.idea.plugin.generator.IGeneratorService;
-import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.caojx.idea.plugin.persistent.PersistentState;
 import com.caojx.idea.plugin.persistent.PersistentStateService;
+import com.caojx.idea.plugin.ui.CustomerJdbcTypeMappingTableDialog;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
 import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
@@ -34,19 +31,12 @@ import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
-import io.github.pdkst.idea.plugin.ui.DataSourcesSettingUI;
 import lombok.Setter;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -54,7 +44,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,7 +53,7 @@ import java.util.Set;
  * @author caojx
  * @date 2022/4/10 10:00 AM
  */
-public class GeneratorSettingUI extends DialogWrapper {
+public class GeneratorSettingUI extends AbstractDialog {
 
     private JTextField entityPathTf;
     private JTextField entityPackageTf;
@@ -104,11 +93,6 @@ public class GeneratorSettingUI extends DialogWrapper {
     private JTextField controllerPackageTf;
     private JTextField controllerNamePatternTf;
     private JCheckBox controllerSwaggerCheckBox;
-    private JComboBox<String> databaseComboBox;
-    private JTextField tableNameRegexTf;
-    private JButton queryTableBtn;
-    private JButton configDataBaseBtn;
-    private JTable table;
     private JComboBox<String> frameworkTypeComboBox;
     private JButton serviceImplPathBtn;
     private JButton controllerPathBtn;
@@ -139,7 +123,6 @@ public class GeneratorSettingUI extends DialogWrapper {
     private JButton autoSetPackageAndPathBtn;
     private JButton modulePathBtn;
     private JTextField entityRelativePackageTf;
-    private JTextField tableNameStripTf;
     private JTextField facadePathTf;
     private JTextField facadePackageTf;
     private JTextField facadeNamePatternTf;
@@ -166,16 +149,6 @@ public class GeneratorSettingUI extends DialogWrapper {
      * 项目
      */
     private Project project;
-
-    /**
-     * 数据库列表
-     */
-    private List<DatabaseProperties> databases = new ArrayList<>();
-
-    /**
-     * 选择的数据库
-     */
-    private DatabaseProperties selectedDatabase;
 
     /**
      * 选中的表名列表
@@ -216,24 +189,11 @@ public class GeneratorSettingUI extends DialogWrapper {
     public static String[] SUPER_SERVICE_IMPL_CLASS_NAMES = {"无",
             Constant.DEFAULT_MYBATIS_PLUS_SUPER_SERVICE_IMPL_CLASS};
 
-    /**
-     * 表头
-     */
-    public static String[] TABLE_COLUMN_NAME = {"", "表名", "注释"};
-    public static DefaultTableModel TABLE_MODEL = new DefaultTableModel(null, TABLE_COLUMN_NAME);
-
-    /**
-     * 包和路径表表
-     */
-    public static String[] PACKAGE_AND_PATH_TABLE_COLUMN_NAME = {"文件类型", "命名格式", "包名", "生成路径"};
-    public static DefaultTableModel PACKAGE_AND_PATH_TABLE_MODEL = new DefaultTableModel(null,
-            PACKAGE_AND_PATH_TABLE_COLUMN_NAME);
-
     private final PersistentStateService persistentStateService;
     private final GlobalPersistentStateService globalPersistentStateService;
 
     public GeneratorSettingUI(Project project) {
-        super(true);
+        super(project);
         init();
         this.project = project;
         this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
@@ -308,12 +268,6 @@ public class GeneratorSettingUI extends DialogWrapper {
         entityRelativePackageTf.setText(StringUtils.isNotBlank(
                 commonProperties.getEntityRelativePackage()) ? commonProperties.getEntityRelativePackage() :
                 Constant.RELATIVE_PACKAGE);
-
-        // 初始化数据库配置
-        List<DatabaseProperties> extDatabases = PersistentExtConfig.loadDatabase();
-        initDatabaseComBox(extDatabases, commonProperties.getDatabaseComboBoxValue());
-        tableNameRegexTf.setText("");
-        tableNameStripTf.setText(commonProperties.getTableNamePrefix());
 
         // entity 设置
         EntityProperties entityProperties = generatorProperties.getEntityProperties();
@@ -440,7 +394,6 @@ public class GeneratorSettingUI extends DialogWrapper {
         // 公共配置
         basePathTf.setText(Constant.DEFAULT_BASE_PATH);
         entityRelativePackageTf.setText(Constant.RELATIVE_PACKAGE);
-        tableNameStripTf.setText("t_");
 
         // entity 设置
         entityGenerateCheckBox.setSelected(true);
@@ -603,82 +556,6 @@ public class GeneratorSettingUI extends DialogWrapper {
                 e -> UIUtils.choosePackageAndSetPackagePath(project, basePackageTf.getText(), controllerPackageTf,
                         controllerPathTf));
 
-        // 数据库下拉框变化
-        databaseComboBox.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                selectedDatabase = databases.stream()
-                        .filter(database -> database.getIdentifierName().equals(e.getItem()))
-                        .findAny()
-                        .get();
-
-                // 重置表数据
-                restTableData();
-            }
-        });
-
-        // 配置数据库
-        configDataBaseBtn.addActionListener(e -> {
-            DataSourcesSettingUI dataSourcesSettingUI = new DataSourcesSettingUI(project);
-            dataSourcesSettingUI.addListener(args -> this.refreshDatabaseComBox());
-            dataSourcesSettingUI.show();
-        });
-
-        // 查询表
-        queryTableBtn.addActionListener(e -> {
-            try {
-                DatabaseSensitiveProperties databaseWithPwd = convertDatabaseWithPwd(selectedDatabase);
-                final Database mySql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
-
-                // 获取表名列表
-                String tableNamePattern = StringUtils.isBlank(
-                        tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
-                List<TableInfo> tableList = mySql.getTables(tableNamePattern);
-
-                // 重置表数据
-                restTableData();
-
-                // 追加行数据
-                table.setModel(TABLE_MODEL);
-                int rows = Math.min(tableList.size(), 30);
-                for (int i = 0; i < rows; i++) {
-                    TableInfo tableInfo = tableList.get(i);
-                    String[] row = {null, tableInfo.getName(), tableInfo.getComment()};
-                    TABLE_MODEL.addRow(row);
-                }
-
-                // 设置列为单选框
-                TableColumn tableColumn = table.getColumnModel().getColumn(0);
-                tableColumn.setCellEditor(new DefaultCellEditor(new JCheckBox()));
-                tableColumn.setCellEditor(table.getDefaultEditor(Boolean.class));
-                tableColumn.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-                tableColumn.setMaxWidth(100);
-            } catch (Exception ex) {
-                MyMessages.showWarningDialog(project, "数据库连接错误,请检查配置.", "Warning");
-            }
-        });
-
-        // 表格监听
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 1) {
-                    int columnIdx = table.columnAtPoint(e.getPoint());
-                    if (columnIdx != 0) {
-                        return;
-                    }
-                    int rowIdx = table.rowAtPoint(e.getPoint());
-                    Boolean flag = (Boolean) table.getValueAt(rowIdx, 0);
-                    if (Objects.nonNull(flag)) {
-                        if (flag) {
-                            selectedTableNames.add(table.getValueAt(rowIdx, 1).toString());
-                        } else {
-                            selectedTableNames.remove(table.getValueAt(rowIdx, 1).toString());
-                        }
-                    }
-                }
-            }
-        });
-
         // 重置配置
         restConfigBtn.addActionListener(e -> {
             // 重置UI数据
@@ -689,8 +566,6 @@ public class GeneratorSettingUI extends DialogWrapper {
 
         // 保存配置
         saveConfigBtn.addActionListener(e -> {
-            // 获取代码生成配置
-
             // 持久化
             savePersistentState();
             MyMessages.showInfoMessage(project, "保存成功", "info");
@@ -699,29 +574,9 @@ public class GeneratorSettingUI extends DialogWrapper {
         // 生成代码
         generatorBtn.addActionListener(e -> {
             // 获取代码生成配置
-            GeneratorProperties generatorProperties = savePersistentState();
-            // 获取表列表
-            if (CollectionUtils.isEmpty(selectedTableNames)) {
-                MyMessages.showWarningDialog(project, "请选择要生成的表", "info");
-                return;
-            }
-            DatabaseSensitiveProperties database = convertDatabaseWithPwd(selectedDatabase);
-            List<TableInfo> tables = getTables(database, selectedTableNames);
-            GeneratorContext generatorContext = new GeneratorContext();
-            generatorContext.setTables(tables);
-            generatorContext.setGeneratorProperties(generatorProperties);
-            generatorContext.setGlobalPersistentState(globalPersistentStateService.getState());
-
-            // 校验数据
-            String message = AbstractGeneratorService.validGeneratorData(generatorContext);
-            if (StringUtils.isNotBlank(message)) {
-                MyMessages.showWarningDialog(project, message, "info");
-                return;
-            }
-
-            // 生成代码
-            generatorService.doGenerator(project, generatorContext);
-            MyMessages.showInfoMessage(project, "生成代码执行完成", "info");
+            savePersistentState();
+            final SelectTableUI selectTableUI = new SelectTableUI(project);
+            selectTableUI.show();
         });
 
         // 取消
@@ -746,12 +601,9 @@ public class GeneratorSettingUI extends DialogWrapper {
         commonProperties.setBasePackage(basePackageTf.getText());
         commonProperties.setBasePath(basePathTf.getText());
         commonProperties.setEntityRelativePackage(entityRelativePackageTf.getText());
-        // xml中 commonProperties databases 配置不再使用
-        commonProperties.setDatabases(new ArrayList<>());
-        commonProperties.setDatabaseComboBoxValue(String.valueOf(databaseComboBox.getSelectedItem()));
+
         commonProperties.setFrameworkTypeComboBoxValues(FrameworkTypeEnum.getFrameworkNames());
         commonProperties.setFrameworkTypeComboBoxValue(String.valueOf(frameworkTypeComboBox.getSelectedItem()));
-        commonProperties.setTableNamePrefix(tableNameStripTf.getText());
         generatorProperties.setCommonProperties(commonProperties);
 
         // entity配置
@@ -876,62 +728,6 @@ public class GeneratorSettingUI extends DialogWrapper {
         }
     }
 
-    /**
-     * 刷新数据库下拉框
-     */
-    public void refreshDatabaseComBox() {
-        final List<DatabaseProperties> databases = PersistentExtConfig.loadDatabase();
-        initDatabaseComBox(databases, (String) databaseComboBox.getSelectedItem());
-    }
-
-    /**
-     * 初始化数据库下拉框
-     *
-     * @param databases                数据库列表
-     * @param selectedShowDatabaseName 选中的数据库名
-     */
-    private void initDatabaseComBox(List<DatabaseProperties> databases, String selectedShowDatabaseName) {
-        // 数据库为空
-        selectedDatabase = null;
-        databaseComboBox.removeAllItems();
-        this.databases = CollectionUtils.isEmpty(databases) ? new ArrayList<>() : databases;
-
-        // 初始化下拉列表，默认选中0号数据库
-        if (CollectionUtils.isNotEmpty(databases)) {
-            databases.forEach(database -> databaseComboBox.addItem(database.getIdentifierName()));
-            databaseComboBox.setSelectedItem(databases.get(0).getIdentifierName());
-            selectedDatabase = databases.get(0);
-        }
-
-        // 设置为选中的数据库
-        boolean selectedDatabaseChange = true;
-        for (DatabaseProperties database : databases) {
-            if (StringUtils.equals(database.getIdentifierName(), selectedShowDatabaseName)) {
-                selectedDatabaseChange = false;
-                selectedDatabase = database;
-                databaseComboBox.setSelectedItem(selectedShowDatabaseName);
-            }
-        }
-
-        // 数据库选择有变化，重置表数据
-        if (selectedDatabaseChange) {
-            restTableData();
-        }
-    }
-
-    /**
-     * 重置表数据
-     */
-    private void restTableData() {
-        // 重置表数据
-        TABLE_MODEL.setDataVector(null, TABLE_COLUMN_NAME);
-        // 重置选择的表
-        if (Objects.isNull(selectedTableNames)) {
-            selectedTableNames = new HashSet<>();
-        }
-        selectedTableNames.clear();
-    }
-
 
     /**
      * 自动配置生成包和路径
@@ -941,7 +737,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         String entityPackage = basePackageTf.getText() + "." + entityRelativePackageTf.getText();
         String entityPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + entityPackage.replace(
-                        ".", "/");
+                ".", "/");
         this.entityPackageTf.setText(entityPackage);
         this.entityPathTf.setText(entityPackagePath);
 
@@ -949,7 +745,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         String mapperPackage = basePackageTf.getText() + "." + "mapper";
         String mapperPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + mapperPackage.replace(
-                        ".", "/");
+                ".", "/");
         this.mapperPackageTf.setText(mapperPackage);
         this.mapperPathTf.setText(mapperPackagePath);
         this.superMapperClassTf.setText("");
@@ -964,14 +760,14 @@ public class GeneratorSettingUI extends DialogWrapper {
         String mapperXmlPackage = "mapper";
         String mapperXmlPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_RESOURCES_PATH + "/" + mapperXmlPackage.replace(
-                        ".", "/");
+                ".", "/");
         this.mapperXmlPathTf.setText(mapperXmlPackagePath);
 
         // service
         String servicePackage = basePackageTf.getText() + "." + "service";
         String servicePackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + servicePackage.replace(
-                        ".", "/");
+                ".", "/");
         this.servicePackageTf.setText(servicePackage);
         this.servicePathTf.setText(servicePackagePath);
         this.superServiceClassTf.setText("");
@@ -983,7 +779,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         String serviceImplPackage = basePackageTf.getText() + "." + "service" + "." + "impl";
         String serviceImplPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + serviceImplPackage.replace(
-                        ".", "/");
+                ".", "/");
         this.serviceImplPackageTf.setText(serviceImplPackage);
         this.serviceImplPathTf.setText(serviceImplPackagePath);
         this.superServiceImplClassTf.setText("");
@@ -995,7 +791,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         String facadePackage = basePackageTf.getText() + "." + "facade";
         String facadePackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + facadePackage.replace(
-                        ".", "/");
+                ".", "/");
         this.facadePackageTf.setText(facadePackage);
         this.facadePathTf.setText(facadePackagePath);
         this.superFacadeClassTf.setText("");
@@ -1004,7 +800,7 @@ public class GeneratorSettingUI extends DialogWrapper {
         String facadeImplPackage = basePackageTf.getText() + "." + "facade" + "." + "impl";
         String facadeImplPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + facadeImplPackage.replace(
-                        ".", "/");
+                ".", "/");
         this.facadeImplPackageTf.setText(facadeImplPackage);
         this.facadeImplPathTf.setText(facadeImplPackagePath);
         this.superFacadeImplClassTf.setText("");
@@ -1013,147 +809,10 @@ public class GeneratorSettingUI extends DialogWrapper {
         String controllerPackage = basePackageTf.getText() + "." + "controller";
         String controllerPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + controllerPackage.replace(
-                        ".", "/");
+                ".", "/");
         this.controllerPackageTf.setText(controllerPackage);
         this.controllerPathTf.setText(controllerPackagePath);
     }
-
-//    /**
-//     * 重置包和包路径表配置
-//     */
-//    private void resetPackageAndPathTableData() {
-//        // 显示水平滚动轴
-//        packageAndPathJscrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-//
-//        // 重置表数据
-//        PACKAGE_AND_PATH_TABLE_MODEL.setDataVector(null, PACKAGE_AND_PATH_TABLE_COLUMN_NAME);
-//        packageAndPathTable.setModel(PACKAGE_AND_PATH_TABLE_MODEL);
-//        if (entityGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_ENTITY;
-//            row[1] = Constant.DEFAULT_ENTITY_NAME_FORMAT;
-//            row[2] = basePackageTf.getText() + "." + "entity";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + row[2].replace(".", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        if (entityExampleGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_ENTITY_EXAMPLE;
-//            row[1] = Constant.DEFAULT_ENTITY_EXAMPLE_NAME_FORMAT;
-//            row[2] = basePackageTf.getText() + "." + "entity";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + row[2].replace(".", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        if (mapperGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_MAPPER;
-//            row[1] = Constant.DEFAULT_MAPPER_NAME_FORMAT;
-//            row[2] = basePackageTf.getText() + "." + "mapper";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + row[2].replace(".", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        if (mapperXmlGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_MAPPER_XML;
-//            row[1] = Constant.DEFAULT_MAPPER_NAME_FORMAT;
-//            row[2] = "mapper";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_RESOURCES_PATH + "/" + row[2].replace("
-//            .", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        if (serviceGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_SERVICE;
-//            row[1] = Constant.DEFAULT_SERVICE_NAME_FORMAT;
-//            row[2] = basePackageTf.getText() + "." + "service";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + row[2].replace(".", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        if (serviceImplGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_FILE_TYPE_SERVICE_IMPL;
-//            row[1] = Constant.DEFAULT_SERVICE_IMPL_NAME_FORMAT;
-//            row[2] = basePackageTf.getText() + "." + "service" + "." + "impl";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + row[2].replace(".", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        if (controllerGenerateCheckBox.isSelected()) {
-//            String[] row = new String[4];
-//            row[0] = Constant.FILE_TYPE_CONTROLLER;
-//            row[1] = Constant.DEFAULT_CONTROLLER_NAME_FORMAT;
-//            row[2] = basePackageTf.getText() + "." + "controller";
-//            row[3] = modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + row[2].replace(".", "/");
-//            PACKAGE_AND_PATH_TABLE_MODEL.addRow(row);
-//        }
-//        packageAndPathTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 横向滚动
-//        // 设置表格的宽度调整方式为按内容调整
-//        TableColumnAdjuster tca = new TableColumnAdjuster(packageAndPathTable, packageAndPathJscrollPane);
-//        tca.adjustColumns();
-//        packageAndPathJscrollPane.setPreferredSize(new Dimension(packageAndPathJscrollPane.getSize().width, 180));
-//    }
-
-
-//    /**
-//     * 表格列自适应
-//     */
-//    public static class TableColumnAdjuster {
-//        private final JTable table;
-//
-//        private final JScrollPane jScrollPane;
-//
-//        public TableColumnAdjuster(JTable table, JScrollPane jScrollPane) {
-//            this.jScrollPane = jScrollPane;
-//            this.table = table;
-//        }
-//
-//        public void adjustColumns() {
-//            for (int column = 0; column < this.table.getColumnCount(); column++) {
-//                adjustColumn(column, column == (this.table.getColumnCount() - 1));
-//            }
-//        }
-//
-//        private void adjustColumn(int column, boolean isLastColumn) {
-//            int maxWidth = getColumnHeaderWidth(column);
-//
-//            for (int row = 0; row < this.table.getRowCount(); row++) {
-//                TableCellRenderer cellRenderer = this.table.getCellRenderer(row, column);
-//                Component c = this.table.prepareRenderer(cellRenderer, row, column);
-//                int width = c.getPreferredSize().width + this.table.getIntercellSpacing().width;
-//                maxWidth = Math.max(maxWidth, width);
-//            }
-//
-//            TableColumn tableColumn = this.table.getColumnModel().getColumn(column);
-//
-//            // 列宽最少50
-//            if (maxWidth < 50) {
-//                maxWidth = 50;
-//            } else {
-//                maxWidth = maxWidth + 15;
-//            }
-//
-//            // 如果为最后一列，剩余的长度给最后一列
-//            if (isLastColumn) {
-//                int sumWith = 0;
-//                for (int rColumn = 0; rColumn < this.table.getColumnCount() - 1; rColumn++) {
-//                    sumWith += table.getColumnModel().getColumn(rColumn).getWidth();
-//                }
-//                int remainingWidth = this.jScrollPane.getSize().width - sumWith;
-//                maxWidth = Math.max(maxWidth, remainingWidth);
-//            }
-//            tableColumn.setPreferredWidth(maxWidth);
-//        }
-//
-//        private int getColumnHeaderWidth(int column) {
-//            TableColumn tableColumn = this.table.getColumnModel().getColumn(column);
-//            TableCellRenderer headerRenderer = tableColumn.getHeaderRenderer();
-//            if (headerRenderer == null) {
-//                headerRenderer = this.table.getTableHeader().getDefaultRenderer();
-//            }
-//            Component headerComp = headerRenderer.getTableCellRendererComponent(this.table, tableColumn
-//            .getHeaderValue(), false, false, 0, 0);
-//            return headerComp.getPreferredSize().width + this.table.getIntercellSpacing().width;
-//        }
-//    }
 
     /**
      * 转换为带密码的数据库信息

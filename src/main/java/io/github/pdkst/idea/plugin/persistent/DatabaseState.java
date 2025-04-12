@@ -14,7 +14,7 @@ public class DatabaseState {
     /**
      * 当前选择的数据库配置
      */
-    private DatabaseProperties currentDatabase;
+    private String currentDatabase;
     /**
      * 数据库前缀
      */

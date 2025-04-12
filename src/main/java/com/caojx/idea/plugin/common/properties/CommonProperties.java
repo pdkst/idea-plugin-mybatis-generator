@@ -1,17 +1,15 @@
 package com.caojx.idea.plugin.common.properties;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 公共配置属性
  *
  * @author caojx
- * @date 2022/4/10 12:20 PM
+ * @since 2022/4/10 12:20 PM
  */
 @Data
 public class CommonProperties implements Serializable {
@@ -42,17 +40,6 @@ public class CommonProperties implements Serializable {
     private String entityRelativePackage;
 
     /**
-     * 数据库列表
-     * 1.3.7版本之后，数据库配置将会保存到 user.home/.myBatisCodeGenerator/ext-config.json 文件中
-     */
-    private List<DatabaseProperties> databases = new ArrayList<>();
-
-    /**
-     * 选择的数据库
-     */
-    private String databaseComboBoxValue;
-
-    /**
      * 框架类型列表
      */
     private List<String> frameworkTypeComboBoxValues;
@@ -61,8 +48,4 @@ public class CommonProperties implements Serializable {
      * 选择的框架类型
      */
     private String frameworkTypeComboBoxValue;
-    /**
-     * 表名前缀
-     */
-    private String tableNamePrefix;
 }

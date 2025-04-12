@@ -1,12 +1,14 @@
 package com.caojx.idea.plugin.persistent;
 
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
+import lombok.Data;
 
 import java.io.Serializable;
 
 /**
  * 持久化数据
  */
+@Data
 public class PersistentState implements Serializable {
 
     /**
@@ -14,11 +16,4 @@ public class PersistentState implements Serializable {
      */
     private GeneratorProperties generatorProperties = new GeneratorProperties();
 
-    public GeneratorProperties getGeneratorProperties() {
-        return generatorProperties;
-    }
-
-    public void setGeneratorProperties(GeneratorProperties generatorProperties) {
-        this.generatorProperties = generatorProperties;
-    }
 }

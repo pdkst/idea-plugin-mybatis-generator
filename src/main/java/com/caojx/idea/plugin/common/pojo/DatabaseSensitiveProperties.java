@@ -12,12 +12,12 @@ import lombok.ToString;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
 public class DatabaseSensitiveProperties extends DatabaseProperties {
 
     /**
      * 密码
      */
+    @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private String password;
 
@@ -32,5 +32,10 @@ public class DatabaseSensitiveProperties extends DatabaseProperties {
     public DatabaseSensitiveProperties(DatabaseSensitiveProperties source) {
         super(source);
         this.password = source.getPassword();
+    }
+
+    @Override
+    public String toString() {
+        return super.getIdentifierName();
     }
 }

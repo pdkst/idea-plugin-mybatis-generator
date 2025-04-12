@@ -1,16 +1,11 @@
 package io.github.pdkst.idea.plugin.ui;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
-import com.caojx.idea.plugin.persistent.PersistentExtConfig;
 import com.intellij.openapi.project.Project;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseTableModel;
-import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
-import io.github.pdkst.idea.plugin.common.utils.RefreshDispatcher;
 import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
 import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
-import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

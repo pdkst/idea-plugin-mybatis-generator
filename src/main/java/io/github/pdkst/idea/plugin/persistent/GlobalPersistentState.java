@@ -21,9 +21,4 @@ public class GlobalPersistentState {
      * 自定义jdbc类型映射
      */
     private Map<String, String> customerJdbcTypeMappingMap = new HashMap<>();
-
-    /**
-     * 数据库配置
-     */
-    private List<DatabaseProperties> databaseList;
 }

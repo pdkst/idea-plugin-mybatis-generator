@@ -9,7 +9,8 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
-import lombok.Getter;
+// 移除未使用的导入
+// import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +31,11 @@ import java.util.Objects;
         // 存放文件名
         storages = @Storage("mybatis-generator-database-list-plugin.xml"))
 public class DatabaseListStateService implements PersistentStateComponent<DatabaseListState> {
-    private DatabaseListState databaseListState;
     private List<DatabaseSensitiveProperties> databases;
+
+    public static DatabaseListStateService getInstance() {
+        return ApplicationManager.getApplication().getService(DatabaseListStateService.class);
+    }
 
     @Override
     public @Nullable DatabaseListState getState() {
@@ -40,53 +44,46 @@ public class DatabaseListStateService implements PersistentStateComponent<Databa
             final DatabaseProperties databaseProperties = new DatabaseProperties(databaseSensitiveProperties);
             databasePropertiesList.add(databaseProperties);
         }
-        databaseListState.setDatabases(databasePropertiesList);
-        return databaseListState;
+        // 创建新的 DatabaseListState 实例并设置属性
+        DatabaseListState state = new DatabaseListState();
+        state.setDatabases(databasePropertiesList);
+        return state;
     }
 
     @Override
     public void loadState(@NotNull DatabaseListState state) {
         final List<DatabaseProperties> databases = state.getDatabases();
-        this.databases = buildDatabasesWithPassword(databases);
-        this.databaseListState = state;
+        this.databases = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(databases)) {
+            for (DatabaseProperties database : databases) {
+                final DatabaseSensitiveProperties sensitiveProperties = new DatabaseSensitiveProperties(database,
+                        PasswordUtils.getPassword(database.getIdentifierName()));
+                this.databases.add(sensitiveProperties);
+            }
+        }
     }
 
     private List<DatabaseSensitiveProperties> buildDatabasesWithPassword(List<DatabaseProperties> databases) {
-        final List<DatabaseSensitiveProperties> sensitivePropertiesList = new ArrayList<>();
+        // 消除冗余的局部变量
         if (CollectionUtils.isEmpty(databases)) {
             return new ArrayList<>();
         }
 
+        List<DatabaseSensitiveProperties> result = new ArrayList<>();
         for (DatabaseProperties database : databases) {
             final DatabaseSensitiveProperties sensitiveProperties = new DatabaseSensitiveProperties(database,
                     PasswordUtils.getPassword(database.getIdentifierName()));
-            sensitivePropertiesList.add(sensitiveProperties);
+            result.add(sensitiveProperties);
         }
-        return sensitivePropertiesList;
+        return result;
     }
 
     public List<DatabaseSensitiveProperties> getDatabases() {
         if (CollectionUtils.isEmpty(this.databases)) {
             List<DatabaseProperties> databasesWithoutPassword = PersistentExtConfig.loadDatabase();
-            final List<DatabaseSensitiveProperties> sensitivePropertiesList = buildDatabasesWithPassword(
-                    databasesWithoutPassword);
-            this.databases = sensitivePropertiesList;
+            this.databases = buildDatabasesWithPassword(databasesWithoutPassword);
         }
         return this.databases;
-    }
-
-    public void setDatabases(List<DatabaseSensitiveProperties> databases) {
-        for (DatabaseSensitiveProperties database : this.databases) {
-            PasswordUtils.clearPassword(database.getIdentifierName());
-        }
-        for (DatabaseSensitiveProperties database : databases) {
-            PasswordUtils.setPassword(database.getIdentifierName(), database.getPassword());
-        }
-        this.databases = databases;
-    }
-
-    public static DatabaseListStateService getInstance() {
-        return ApplicationManager.getApplication().getService(DatabaseListStateService.class);
     }
 
     public void remove(int index) {
@@ -97,5 +94,14 @@ public class DatabaseListStateService implements PersistentStateComponent<Databa
     public void replaceByIdentify(DatabaseSensitiveProperties replace) {
         this.databases.removeIf(database -> Objects.equals(database.getIdentifierName(), replace.getIdentifierName()));
         this.databases.add(replace);
+    }
+
+    public DatabaseSensitiveProperties getDatabaseByIdentify(String identifierName) {
+        for (DatabaseSensitiveProperties database : this.databases) {
+            if (Objects.equals(database.getIdentifierName(), identifierName)) {
+                return database;
+            }
+        }
+        return null;
     }
 }

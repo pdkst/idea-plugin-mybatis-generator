@@ -11,7 +11,6 @@ import com.caojx.idea.plugin.generator.GeneratorContext;
 import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
 import com.caojx.idea.plugin.generator.IGeneratorService;
 import com.caojx.idea.plugin.persistent.PersistentStateService;
-import com.caojx.idea.plugin.ui.GeneratorSettingUI;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.pdkst.idea.plugin.common.utils.Database;
@@ -21,13 +20,17 @@ import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
 import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
+import io.github.pdkst.idea.plugin.persistent.DatabaseStateService;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,18 +42,18 @@ public class SelectTableUI extends DialogWrapper {
     private final PersistentStateService persistentStateService;
     private final GlobalPersistentStateService globalPersistentStateService;
     private final DatabaseListStateService databaseListStateService;
+    private final DatabaseStateService databaseStateService;
 
-    /**
-     * 生成代码业务接口
-     */
+    // 生成代码业务接口
     private IGeneratorService generatorService = new GeneratorServiceImpl();
 
     // 界面
     private JPanel contentPane;
-    private JComboBox databaseComboBox;
-    private JTextField tableNameRegexTf;
-    private JButton queryTableBtn;
-    private JButton configDataBaseBtn;
+    private JComboBox<DatabaseSensitiveProperties> databaseComboBox;
+    private JTextField tfTableNameRegex;
+    private JTextField tfTablePrefix;
+    private JButton btnQueryTable;
+    private JButton btnConfigDataBase;
     // 数据库表列表
     private JTable table;
     private TableInfoTableModel dataModel;
@@ -67,6 +70,7 @@ public class SelectTableUI extends DialogWrapper {
         this.persistentStateService = PersistentStateService.getInstance(project);
         this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
         this.databaseListStateService = DatabaseListStateService.getInstance();
+        this.databaseStateService = project.getService(DatabaseStateService.class);
         // 初始化界面
         initData();
         initListener();
@@ -75,16 +79,32 @@ public class SelectTableUI extends DialogWrapper {
     private void initData() {
         dataModel = new TableInfoTableModel();
         table.setModel(dataModel);
-        databaseComboBox.setRenderer(new DatabaseWithOutPwdListCellRenderer());
         refreshDatabaseTable();
+        databaseComboBox.setRenderer(new DatabaseWithOutPwdListCellRenderer());
     }
 
     private void initListener() {
+        databaseComboBox.addActionListener(e -> {
+            DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
+            if (database == null) {
+                return;
+            }
+            // 重置表数据
+            dataModel.clearData();
+            databaseStateService.setCurrentDatabase(database.getIdentifierName());
+        });
+        tfTablePrefix.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                final JTextField source = (JTextField) e.getSource();
+                databaseStateService.setTablePrefix(source.getText());
+            }
+        });
         // 设置监听
-        queryTableBtn.addActionListener(e -> {
+        btnQueryTable.addActionListener(e -> {
             searchTables();
         });
-        configDataBaseBtn.addActionListener(e -> {
+        btnConfigDataBase.addActionListener(e -> {
             // 打开数据库配置界面
             DataSourcesSettingUI dataSourcesSettingUI = new DataSourcesSettingUI(project);
             dataSourcesSettingUI.addListener(args -> {
@@ -110,7 +130,8 @@ public class SelectTableUI extends DialogWrapper {
 
     private void refreshDatabaseTable() {
         List<DatabaseSensitiveProperties> extDatabases = databaseListStateService.getDatabases();
-        initDatabaseComBox(extDatabases, null);
+        initDatabaseComBox(extDatabases, databaseStateService.getCurrentDatabase());
+        tfTablePrefix.setText(ObjectUtils.defaultIfNull(databaseStateService.getTablePrefix(), "t_"));
     }
 
     private void searchTables() {
@@ -124,7 +145,7 @@ public class SelectTableUI extends DialogWrapper {
             Database mysql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
 
             String tableNamePattern = StringUtils.isBlank(
-                    tableNameRegexTf.getText()) ? "%" : "%" + tableNameRegexTf.getText() + "%";
+                    tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
             List<TableInfo> tableList = mysql.getTables(tableNamePattern);
 
             dataModel.setDataList(tableList);
@@ -154,17 +175,15 @@ public class SelectTableUI extends DialogWrapper {
             MyMessages.showWarningDialog(project, "请选择要生成的表", "info");
             return;
         }
-        DatabaseProperties database = (DatabaseProperties) databaseComboBox.getSelectedItem();
-        DatabaseSensitiveProperties databaseWithPwd = new DatabaseSensitiveProperties(database,
-                PasswordUtils.getPassword(database.getIdentifierName()));
-        List<TableInfo> tables = getTables(databaseWithPwd, generatorProperties.getEntityProperties(),
-                selectedTableNames);
+        DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
+        List<TableInfo> tables = getTables(database, generatorProperties.getEntityProperties(), selectedTableNames);
 
         // 校验数据
         GeneratorContext generatorContext = new GeneratorContext();
         generatorContext.setTables(tables);
         generatorContext.setGeneratorProperties(generatorProperties);
         generatorContext.setGlobalPersistentState(globalPersistentStateService.getState());
+        generatorContext.setDatabaseState(databaseStateService.getState());
         String message = AbstractGeneratorService.validGeneratorData(generatorContext);
         if (StringUtils.isNotBlank(message)) {
             MyMessages.showWarningDialog(project, message, "info");
@@ -208,7 +227,7 @@ public class SelectTableUI extends DialogWrapper {
 
         // 初始化下拉列表，默认选中0号数据库
         if (CollectionUtils.isNotEmpty(databases)) {
-            for (DatabaseProperties database : databases) {
+            for (DatabaseSensitiveProperties database : databases) {
                 databaseComboBox.addItem(database);
             }
             databaseComboBox.setSelectedItem(databases.get(0));
@@ -219,7 +238,7 @@ public class SelectTableUI extends DialogWrapper {
         for (DatabaseProperties database : databases) {
             if (StringUtils.equals(database.getIdentifierName(), selectedShowDatabaseName)) {
                 selectedDatabaseChange = false;
-                databaseComboBox.setSelectedItem(selectedShowDatabaseName);
+                databaseComboBox.setSelectedItem(database);
             }
         }
 

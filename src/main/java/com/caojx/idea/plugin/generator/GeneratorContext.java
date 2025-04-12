@@ -3,6 +3,7 @@ package com.caojx.idea.plugin.generator;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
 import com.intellij.util.xmlb.annotations.Transient;
+import io.github.pdkst.idea.plugin.persistent.DatabaseState;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
 import lombok.Data;
 import lombok.Getter;
@@ -22,9 +23,13 @@ import java.util.List;
 public class GeneratorContext implements Serializable {
 
     /**
-     * 代码生成配置
+     * 全局配置
      */
     private GlobalPersistentState globalPersistentState;
+    /**
+     * 数据库配置
+     */
+    private DatabaseState databaseState;
     /**
      * 代码生成配置
      */

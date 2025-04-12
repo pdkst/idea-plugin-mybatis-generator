@@ -15,12 +15,4 @@ import java.util.List;
 @Data
 public class DatabaseListState {
     private List<DatabaseProperties> databases;
-
-    public DatabaseListState() {
-        this.databases = new ArrayList<>();
-    }
-
-    public DatabaseListState(List<DatabaseProperties> databases) {
-        this.databases = databases;
-    }
 }

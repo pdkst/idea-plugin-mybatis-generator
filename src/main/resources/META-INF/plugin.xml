@@ -61,7 +61,12 @@
 
     <actions>
         <!-- Add your actions here  入口 Tools->MyBatisCodeGenerator -->
-        <action id="MyBatisCodeGeneratorId" class="com.caojx.idea.plugin.action.GeneratorAction"
+        <action id="MyBatisCodeSetting" class="io.github.pdkst.idea.plugin.action.SettingAction"
+                text="MyBatisCodeSetting" description="配置生成器">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+        <!-- Add your actions here  入口 Tools->MyBatisCodeGenerator -->
+        <action id="MyBatisCodeGenerator" class="io.github.pdkst.idea.plugin.action.GeneratorAction"
                 text="MyBatisCodeGenerator" description="生成代码">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>

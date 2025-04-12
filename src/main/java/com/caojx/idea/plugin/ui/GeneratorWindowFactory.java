@@ -5,6 +5,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import io.github.pdkst.idea.plugin.ui.GeneratorSettingUI;
 import org.jetbrains.annotations.NotNull;
 
 /**
