@@ -9,6 +9,7 @@ import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
 import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +19,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 编辑数据库
@@ -140,34 +143,22 @@ public class EditDatabaseSettingUI extends AbstractDialog {
         if (StringUtils.isBlank(url)) {
             return null;
         }
-
-        String[] split = url.split("//");
-        if (split.length < 2) {
+        // 使用正则命名分组解析
+        final Pattern pattern = Pattern.compile("jdbc:(?<databaseType>\\w+)://(?<host>[\\w.]+):(?<port>\\d+)/(?<databaseName>\\w+)(\\?(?<properties>.*))?");
+        final Matcher matcher = pattern.matcher(url);
+        if (!matcher.matches()) {
             return null;
         }
-        String newUrl = split[1];
-
-        String[] split1 = newUrl.split(":");
-        String host = split1[0];
-        Integer port = null;
-        String databaseName = "";
-        if (split1.length > 1) {
-            String[] split2 = split1[1].split("/");
-            try {
-                port = Integer.valueOf(split2[0]);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (split2.length > 1) {
-                databaseName = split2[1].split("\\?")[0];
-            }
-        }
+        final String databaseType = matcher.group("databaseType");
+        final String host = matcher.group("host");
+        final String port = matcher.group("port");
+        final String databaseName = matcher.group("databaseName");
 
         // 属性
         DatabaseProperties databaseWithOutPwd = new DatabaseProperties();
-        databaseWithOutPwd.setDatabaseType(DataBaseTypeEnum.MySQL.getDatabaseType());
+        databaseWithOutPwd.setDatabaseType(ObjectUtils.defaultIfNull(StringUtils.lowerCase(databaseType), DataBaseTypeEnum.MySQL.getDatabaseType()));
         databaseWithOutPwd.setHost(host);
-        databaseWithOutPwd.setPort(port);
+        databaseWithOutPwd.setPort(Integer.parseInt(port));
         databaseWithOutPwd.setDatabaseName(databaseName);
         databaseWithOutPwd.setUserName(userName);
         return databaseWithOutPwd;
@@ -198,27 +189,32 @@ public class EditDatabaseSettingUI extends AbstractDialog {
      * @param project 项目
      */
     private void initActionListener(Project project) {
+        databaseTypeComboBox.addActionListener(e -> {
+            final DataBaseTypeEnum selectedItem = (DataBaseTypeEnum) databaseTypeComboBox.getSelectedItem();
+            if (Objects.isNull(selectedItem)) {
+                return;
+            }
+            resetUrl();
+        });
+
         hostTf.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                String propertiesStr = extractPropertiesStr(urlTf.getText());
-                urlTf.setText(buildURL(hostTf.getText(), portTf.getText(), databaseNameTf.getText(), propertiesStr));
+                resetUrl();
             }
         });
 
         portTf.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                String propertiesStr = extractPropertiesStr(urlTf.getText());
-                urlTf.setText(buildURL(hostTf.getText(), portTf.getText(), databaseNameTf.getText(), propertiesStr));
+                resetUrl();
             }
         });
 
         databaseNameTf.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                String propertiesStr = extractPropertiesStr(urlTf.getText());
-                urlTf.setText(buildURL(hostTf.getText(), portTf.getText(), databaseNameTf.getText(), propertiesStr));
+                resetUrl();
             }
         });
 
@@ -277,6 +273,11 @@ public class EditDatabaseSettingUI extends AbstractDialog {
         });
     }
 
+    private void resetUrl() {
+        String propertiesStr = extractPropertiesStr(urlTf.getText());
+        urlTf.setText(buildURL(hostTf.getText(), portTf.getText(), databaseNameTf.getText(), propertiesStr));
+    }
+
     /**
      * 获取表单数据库配置信息
      *
@@ -289,9 +290,8 @@ public class EditDatabaseSettingUI extends AbstractDialog {
             return null;
         }
         DatabaseSensitiveProperties database = new DatabaseSensitiveProperties();
-        database.setDatabaseType(StringUtils.isNotBlank(
-                databaseWithOutPwd.getDatabaseType()) ? databaseWithOutPwd.getDatabaseType() :
-                DataBaseTypeEnum.MySQL.getDatabaseType());
+        final String databaseType = databaseWithOutPwd.getDatabaseType();
+        database.setDatabaseType(StringUtils.firstNonBlank(databaseType, DataBaseTypeEnum.MySQL.getDatabaseType()));
         database.setHost(databaseWithOutPwd.getHost());
         database.setPort(databaseWithOutPwd.getPort());
         database.setDatabaseName(databaseWithOutPwd.getDatabaseName());

@@ -5,8 +5,18 @@ import com.caojx.idea.plugin.common.pojo.TableField;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import lombok.Data;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.JDBCType;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
 
 import static java.util.Collections.singletonList;
 
@@ -26,7 +36,10 @@ public class MySqlDatabase implements Database {
         return execute(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT VERSION() AS MYSQL_VERSION");
             ResultSet resultSet = preparedStatement.executeQuery();
-            return resultSet.getString("MYSQL_VERSION");
+            if (resultSet.next()) {
+                return resultSet.getString("MYSQL_VERSION");
+            }
+            return null;
         });
     }
 

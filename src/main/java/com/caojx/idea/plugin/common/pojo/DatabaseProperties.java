@@ -1,6 +1,7 @@
 package com.caojx.idea.plugin.common.pojo;
 
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 数据库信息不带密码
@@ -59,11 +60,11 @@ public class DatabaseProperties {
     }
 
     public String getIdentifierName() {
-        return databaseName + "@" + host + ":" + port + ":" + databaseType;
+        return databaseName + "@" + host + ":" + port + ":" + StringUtils.lowerCase(databaseType);
     }
 
     public String getUrl() {
-        return "jdbc:" + databaseType + "://" + this.host + ":" + this.port + "/" + this.databaseName;
+        return "jdbc:" + StringUtils.lowerCase(databaseType) + "://" + this.host + ":" + this.port + "/" + this.databaseName;
     }
 
 }
