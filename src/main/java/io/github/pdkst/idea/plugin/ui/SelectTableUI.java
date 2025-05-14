@@ -135,14 +135,13 @@ public class SelectTableUI extends DialogWrapper {
     }
 
     private void searchTables() {
-        DatabaseProperties database = (DatabaseProperties) databaseComboBox.getSelectedItem();
+        DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
         if (database == null) {
             MyMessages.showWarningDialog(project, "请选择一个数据库", "Warning");
             return;
         }
         try {
-            DatabaseSensitiveProperties databaseWithPwd = convertDatabaseWithPwd(database);
-            Database mysql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
+            Database mysql = DatabaseHelper.getMySql(database, new HashMap<>(4));
 
             String tableNamePattern = StringUtils.isBlank(
                     tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
