@@ -17,7 +17,6 @@ import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseWithOutPwdListCellRenderer;
 import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
-import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
 import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
 import io.github.pdkst.idea.plugin.persistent.DatabaseStateService;
@@ -115,6 +114,7 @@ public class SelectTableUI extends DialogWrapper {
         // 跳转到生成代码配置页面
         btnGeneratorSetting.addActionListener(e -> {
             // 打开数据库配置界面
+            project.save();
             GeneratorSettingUI generatorSettingUI = new GeneratorSettingUI(project);
             generatorSettingUI.show();
         });
@@ -151,17 +151,6 @@ public class SelectTableUI extends DialogWrapper {
         } catch (Exception ex) {
             MyMessages.showWarningDialog(project, "数据库连接错误,请检查配置.", "Warning");
         }
-    }
-
-    /**
-     * 转换为带密码的数据库信息
-     *
-     * @param database 数据库信息
-     * @return 带密码的数据库信息
-     */
-    private DatabaseSensitiveProperties convertDatabaseWithPwd(DatabaseProperties database) {
-        String password = PasswordUtils.getPassword(database.getIdentifierName());
-        return new DatabaseSensitiveProperties(database, password);
     }
 
     public void generateCode() {

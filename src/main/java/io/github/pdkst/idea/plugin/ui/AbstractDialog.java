@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 2025/03/28
  */
 public abstract class AbstractDialog extends DialogWrapper implements RefreshListener {
-
+    private final Project project;
     /**
      * 刷新监听器
      */
@@ -21,10 +21,11 @@ public abstract class AbstractDialog extends DialogWrapper implements RefreshLis
 
     public AbstractDialog(@Nullable Project project) {
         super(project);
+        this.project = project;
     }
 
     public AbstractDialog(@Nullable Project project, RefreshListener... listener) {
-        super(project);
+        this(project);
         refreshDispatcher.addListener(listener);
     }
 
@@ -34,6 +35,7 @@ public abstract class AbstractDialog extends DialogWrapper implements RefreshLis
     }
 
     public void triggerRefresh(Object... args) {
+        project.save();
         // 触发刷新时候执行
         refreshDispatcher.triggerRefresh(args);
     }

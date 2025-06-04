@@ -33,7 +33,7 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
     @Override
     public @Nullable PersistentState getState() {
         if (this.persistentData == null) {
-            return this.persistentData = new PersistentState();
+            this.persistentData = new PersistentState();
         }
         return this.persistentData;
     }
