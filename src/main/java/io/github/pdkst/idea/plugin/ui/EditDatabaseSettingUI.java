@@ -309,4 +309,10 @@ public class EditDatabaseSettingUI extends AbstractDialog {
         final Database mySql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
         return mySql.testDatabase();
     }
+
+    @Override
+    public void triggerRefresh(Object... args) {
+        super.triggerRefresh(args);
+        databaseListStateService.save();
+    }
 }

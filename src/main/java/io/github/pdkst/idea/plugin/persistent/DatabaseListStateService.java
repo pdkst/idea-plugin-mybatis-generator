@@ -9,8 +9,6 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
-// 移除未使用的导入
-// import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -96,12 +94,8 @@ public class DatabaseListStateService implements PersistentStateComponent<Databa
         this.databases.add(replace);
     }
 
-    public DatabaseSensitiveProperties getDatabaseByIdentify(String identifierName) {
-        for (DatabaseSensitiveProperties database : this.databases) {
-            if (Objects.equals(database.getIdentifierName(), identifierName)) {
-                return database;
-            }
-        }
-        return null;
+    public void save() {
+        // 手动触发保存操作
+        ApplicationManager.getApplication().saveSettings();
     }
 }

@@ -40,11 +40,18 @@ public class DataSourcesSettingUI extends AbstractDialog {
         this.project = project;
         this.databaseListStateService = DatabaseListStateService.getInstance();
 
-        // 初始化界面数据
-        initData(project);
+        refresh();
 
         // 创建事件监听器
         initActionListener(project);
+    }
+
+    @Override
+    public void refresh(Object... args) {
+        // 初始化表数据
+        dataSourcesTable.setModel(tableModel);
+        // 数据库列表
+        refreshDatabaseTable();
     }
 
     @Override
@@ -55,19 +62,6 @@ public class DataSourcesSettingUI extends AbstractDialog {
     @Override
     protected JComponent createSouthPanel() {
         return null;
-    }
-
-    /**
-     * 渲染UI数据
-     *
-     * @param project 项目
-     */
-    private void initData(Project project) {
-
-        // 初始化表数据
-        dataSourcesTable.setModel(tableModel);
-        // 数据库列表
-        refreshDatabaseTable();
     }
 
     /**
@@ -114,14 +108,14 @@ public class DataSourcesSettingUI extends AbstractDialog {
             }
             final List<DatabaseSensitiveProperties> databases = databaseListStateService.getDatabases();
             DatabaseSensitiveProperties database = databases.get(selectedRow);
-            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, database, this);
-            editDatabaseSettingUI.show();
+            EditDatabaseSettingUI editDatabaseSetting = new EditDatabaseSettingUI(project, database, this);
+            editDatabaseSetting.show();
         });
 
         // 添加数据库
         addBtn.addActionListener(e -> {
-            EditDatabaseSettingUI editDatabaseSettingUI = new EditDatabaseSettingUI(project, null, this);
-            editDatabaseSettingUI.show();
+            EditDatabaseSettingUI editDatabaseSetting = new EditDatabaseSettingUI(project, null, this);
+            editDatabaseSetting.show();
         });
     }
 }

@@ -35,7 +35,6 @@ public abstract class AbstractDialog extends DialogWrapper implements RefreshLis
     }
 
     public void triggerRefresh(Object... args) {
-        project.save();
         // 触发刷新时候执行
         refreshDispatcher.triggerRefresh(args);
     }

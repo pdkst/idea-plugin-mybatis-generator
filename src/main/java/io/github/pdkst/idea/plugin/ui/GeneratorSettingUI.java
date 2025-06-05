@@ -2,7 +2,6 @@ package io.github.pdkst.idea.plugin.ui;
 
 import com.caojx.idea.plugin.common.constants.Constant;
 import com.caojx.idea.plugin.common.enums.FrameworkTypeEnum;
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.CommonProperties;
@@ -28,7 +27,6 @@ import com.intellij.ui.components.JBScrollPane;
 import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
-import io.github.pdkst.idea.plugin.common.utils.PasswordUtils;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
 import lombok.Setter;
@@ -737,7 +735,7 @@ public class GeneratorSettingUI extends AbstractDialog {
         String entityPackage = basePackageTf.getText() + "." + entityRelativePackageTf.getText();
         String entityPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + entityPackage.replace(
-                ".", "/");
+                        ".", "/");
         this.entityPackageTf.setText(entityPackage);
         this.entityPathTf.setText(entityPackagePath);
 
@@ -745,7 +743,7 @@ public class GeneratorSettingUI extends AbstractDialog {
         String mapperPackage = basePackageTf.getText() + "." + "mapper";
         String mapperPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + mapperPackage.replace(
-                ".", "/");
+                        ".", "/");
         this.mapperPackageTf.setText(mapperPackage);
         this.mapperPathTf.setText(mapperPackagePath);
         this.superMapperClassTf.setText("");
@@ -760,14 +758,14 @@ public class GeneratorSettingUI extends AbstractDialog {
         String mapperXmlPackage = "mapper";
         String mapperXmlPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_RESOURCES_PATH + "/" + mapperXmlPackage.replace(
-                ".", "/");
+                        ".", "/");
         this.mapperXmlPathTf.setText(mapperXmlPackagePath);
 
         // service
         String servicePackage = basePackageTf.getText() + "." + "service";
         String servicePackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + servicePackage.replace(
-                ".", "/");
+                        ".", "/");
         this.servicePackageTf.setText(servicePackage);
         this.servicePathTf.setText(servicePackagePath);
         this.superServiceClassTf.setText("");
@@ -779,7 +777,7 @@ public class GeneratorSettingUI extends AbstractDialog {
         String serviceImplPackage = basePackageTf.getText() + "." + "service" + "." + "impl";
         String serviceImplPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + serviceImplPackage.replace(
-                ".", "/");
+                        ".", "/");
         this.serviceImplPackageTf.setText(serviceImplPackage);
         this.serviceImplPathTf.setText(serviceImplPackagePath);
         this.superServiceImplClassTf.setText("");
@@ -791,7 +789,7 @@ public class GeneratorSettingUI extends AbstractDialog {
         String facadePackage = basePackageTf.getText() + "." + "facade";
         String facadePackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + facadePackage.replace(
-                ".", "/");
+                        ".", "/");
         this.facadePackageTf.setText(facadePackage);
         this.facadePathTf.setText(facadePackagePath);
         this.superFacadeClassTf.setText("");
@@ -800,7 +798,7 @@ public class GeneratorSettingUI extends AbstractDialog {
         String facadeImplPackage = basePackageTf.getText() + "." + "facade" + "." + "impl";
         String facadeImplPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + facadeImplPackage.replace(
-                ".", "/");
+                        ".", "/");
         this.facadeImplPackageTf.setText(facadeImplPackage);
         this.facadeImplPathTf.setText(facadeImplPackagePath);
         this.superFacadeImplClassTf.setText("");
@@ -809,20 +807,9 @@ public class GeneratorSettingUI extends AbstractDialog {
         String controllerPackage = basePackageTf.getText() + "." + "controller";
         String controllerPackagePath =
                 modulePathTf.getText() + "/" + Constant.DEFAULT_BASE_PATH + "/" + controllerPackage.replace(
-                ".", "/");
+                        ".", "/");
         this.controllerPackageTf.setText(controllerPackage);
         this.controllerPathTf.setText(controllerPackagePath);
-    }
-
-    /**
-     * 转换为带密码的数据库信息
-     *
-     * @param database 数据库信息
-     * @return 带密码的数据库信息
-     */
-    private DatabaseSensitiveProperties convertDatabaseWithPwd(DatabaseProperties database) {
-        String password = PasswordUtils.getPassword(database.getIdentifierName());
-        return new DatabaseSensitiveProperties(database, password);
     }
 
 }
