@@ -90,11 +90,15 @@ public class DatabaseListStateService implements PersistentStateComponent<Databa
     }
 
     public void replaceByIdentify(DatabaseSensitiveProperties replace) {
+        PasswordUtils.setPassword(replace.getIdentifierName(), replace.getPassword());
         this.databases.removeIf(database -> Objects.equals(database.getIdentifierName(), replace.getIdentifierName()));
         this.databases.add(replace);
     }
 
     public void save() {
+        for (DatabaseSensitiveProperties database : this.databases) {
+            PasswordUtils.setPassword(database.getIdentifierName(), database.getPassword());
+        }
         // 手动触发保存操作
         ApplicationManager.getApplication().saveSettings();
     }
