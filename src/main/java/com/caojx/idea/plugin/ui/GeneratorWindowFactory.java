@@ -20,7 +20,7 @@ public class GeneratorWindowFactory implements ToolWindowFactory {
         // 创建GeneratorSettingUI
         GeneratorSettingUI generatorSettingUI = new GeneratorSettingUI(project);
         // 获取内功工厂实例
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+        ContentFactory contentFactory = ContentFactory.getInstance();
         // 创建toolWindow显示内容
         Content content = contentFactory.createContent(generatorSettingUI.getContentPanel(), "", false);
         //给toolWindow设置内容
