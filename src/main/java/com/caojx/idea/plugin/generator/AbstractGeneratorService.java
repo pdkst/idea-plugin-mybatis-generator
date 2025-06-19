@@ -13,6 +13,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import io.github.pdkst.idea.plugin.common.pojo.MybatisXml;
 import io.github.pdkst.idea.plugin.generator.MybatisXmlMerger;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
+import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -26,6 +27,7 @@ import java.util.Objects;
  * @author caojx
  * @date 2022/4/4
  */
+@CustomLog
 public abstract class AbstractGeneratorService implements IGeneratorService {
 
     private final FreemarkerTemplateEngine freemarkerTemplateEngine = new FreemarkerTemplateEngine();
@@ -43,32 +45,28 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
             // entity
             EntityProperties entityProperties = generatorProperties.getEntityProperties();
             if (entityProperties.isSelectedGenerateCheckBox()) {
-                String entityFile = entityProperties.getPath() + File.separator + objectMap.get(
-                        "entityName") + Constant.JAVA_SUFFIX;
+                String entityFile = entityProperties.getPath() + File.separator + objectMap.get("entityName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("entityTemplatePath").toString(), entityFile);
             }
 
             // entityExample
             if (entityProperties.isSelectedGenerateEntityExampleCheckBox()) {
-                String entityExampleFile = entityProperties.getPath() + File.separator + objectMap.get(
-                        "entityExampleName") + Constant.JAVA_SUFFIX;
-                generatorFile(project, objectMap, objectMap.get("entityExampleTemplatePath").toString(),
-                        entityExampleFile);
+                String entityExampleFile = entityProperties.getPath() + File.separator + objectMap.get("entityExampleName") + Constant.JAVA_SUFFIX;
+                generatorFile(project, objectMap, objectMap.get("entityExampleTemplatePath").toString(), entityExampleFile);
             }
 
             // mapper
             MapperProperties mapperProperties = generatorProperties.getMapperProperties();
             if (mapperProperties.isSelectedGenerateCheckBox()) {
-                String mapperFile = mapperProperties.getPath() + File.separator + objectMap.get(
-                        "mapperName") + Constant.JAVA_SUFFIX;
+                String mapperFile = mapperProperties.getPath() + File.separator + objectMap.get("mapperName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("mapperTemplatePath").toString(), mapperFile);
             }
 
             // mapperXml
+            log.info("generate mapper xml");
             MapperXmlProperties mapperXmlProperties = generatorProperties.getMapperXmlProperties();
             if (mapperXmlProperties.isSelectedGenerateCheckBox()) {
-                String mapperXmlFile = mapperXmlProperties.getPath() + File.separator + objectMap.get(
-                        "mapperXmlName") + Constant.XML_SUFFIX;
+                String mapperXmlFile = mapperXmlProperties.getPath() + File.separator + objectMap.get("mapperXmlName") + Constant.XML_SUFFIX;
                 final MybatisXml mybatisXml = MybatisXmlMerger.parse(mapperXmlFile);
                 generatorFile(project, objectMap, objectMap.get("mapperXmlTemplatePath").toString(), mapperXmlFile);
                 // 合并xml
@@ -81,40 +79,35 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
             // service
             ServiceProperties serviceProperties = generatorProperties.getServiceProperties();
             if (serviceProperties.isSelectedGenerateCheckBox()) {
-                String serviceFile = serviceProperties.getPath() + File.separator + objectMap.get(
-                        "serviceName") + Constant.JAVA_SUFFIX;
+                String serviceFile = serviceProperties.getPath() + File.separator + objectMap.get("serviceName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("serviceTemplatePath").toString(), serviceFile);
             }
 
             // serviceImpl
             ServiceImplProperties serviceImplProperties = generatorProperties.getServiceImplProperties();
             if (serviceImplProperties.isSelectedGenerateCheckBox()) {
-                String serviceImplFile = serviceImplProperties.getPath() + File.separator + objectMap.get(
-                        "serviceImplName") + Constant.JAVA_SUFFIX;
+                String serviceImplFile = serviceImplProperties.getPath() + File.separator + objectMap.get("serviceImplName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("serviceImplTemplatePath").toString(), serviceImplFile);
             }
 
             // facade
             FacadeProperties facadeProperties = generatorProperties.getFacadeProperties();
             if (facadeProperties.isSelectedGenerateCheckBox()) {
-                String serviceFile = facadeProperties.getPath() + File.separator + objectMap.get(
-                        "facadeName") + Constant.JAVA_SUFFIX;
+                String serviceFile = facadeProperties.getPath() + File.separator + objectMap.get("facadeName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("facadeTemplatePath").toString(), serviceFile);
             }
 
             // facadeImpl
             FacadeImplProperties facadeImplProperties = generatorProperties.getFacadeImplProperties();
             if (facadeImplProperties.isSelectedGenerateCheckBox()) {
-                String serviceImplFile = facadeImplProperties.getPath() + File.separator + objectMap.get(
-                        "facadeImplName") + Constant.JAVA_SUFFIX;
+                String serviceImplFile = facadeImplProperties.getPath() + File.separator + objectMap.get("facadeImplName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("facadeImplTemplatePath").toString(), serviceImplFile);
             }
 
             // controller
             ControllerProperties controllerProperties = generatorProperties.getControllerProperties();
             if (controllerProperties.isSelectedGenerateCheckBox()) {
-                String controllerFile = controllerProperties.getPath() + File.separator + objectMap.get(
-                        "controllerName") + Constant.JAVA_SUFFIX;
+                String controllerFile = controllerProperties.getPath() + File.separator + objectMap.get("controllerName") + Constant.JAVA_SUFFIX;
                 generatorFile(project, objectMap, objectMap.get("controllerTemplatePath").toString(), controllerFile);
             }
         }
@@ -156,8 +149,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("entityTemplatePath", Constant.ENTITY_TEMPLATE_PATH);
         objectMap.put("entityPackage", entityProperties.getPackageName());
         objectMap.put("entityName", entityName);
-        objectMap.put("entityFullClassName",
-                ClassUtils.getFullClassName(entityProperties.getPackageName(), entityName));
+        objectMap.put("entityFullClassName", ClassUtils.getFullClassName(entityProperties.getPackageName(), entityName));
         objectMap.put("entityImportPackages", tableInfo.getImportPackages());
         objectMap.put("isSelectedSerializableCheckBox", entityProperties.isSelectedSerializableCheckBox());
         objectMap.put("isSelectedDataCheckBox", entityProperties.isSelectedDataCheckBox());
@@ -172,8 +164,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("entityExampleTemplatePath", Constant.ENTITY_EXAMPLE_TEMPLATE_PATH);
         objectMap.put("entityExamplePackage", entityProperties.getPackageName());
         objectMap.put("entityExampleName", entityExampleName);
-        objectMap.put("entityExampleFullClassName",
-                ClassUtils.getFullClassName(entityProperties.getPackageName(), entityExampleName));
+        objectMap.put("entityExampleFullClassName", ClassUtils.getFullClassName(entityProperties.getPackageName(), entityExampleName));
 
         // mapper
         MapperProperties mapperProperties = generatorProperties.getMapperProperties();
@@ -182,28 +173,18 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("mapperPackage", mapperProperties.getPackageName());
         objectMap.put("mapperName", mapperName);
         objectMap.put("mapperInstanceName", StringUtils.uncapitalize(mapperName));
-        objectMap.put("mapperFullClassName",
-                ClassUtils.getFullClassName(mapperProperties.getPackageName(), mapperName));
+        objectMap.put("mapperFullClassName", ClassUtils.getFullClassName(mapperProperties.getPackageName(), mapperName));
         objectMap.put("superMapperClass", mapperProperties.getSuperMapperClass());
-        objectMap.put("superMapperClassName",
-                ClassUtils.getClassNameByFullClassName(mapperProperties.getSuperMapperClass()));
-        objectMap.put("superMapperClassPackage",
-                ClassUtils.getPackageNameByFullClassName(mapperProperties.getSuperMapperClass()));
+        objectMap.put("superMapperClassName", ClassUtils.getClassNameByFullClassName(mapperProperties.getSuperMapperClass()));
+        objectMap.put("superMapperClassPackage", ClassUtils.getPackageNameByFullClassName(mapperProperties.getSuperMapperClass()));
         objectMap.put("isSelectedEnableInsertCheckBox", mapperProperties.isSelectedEnableInsertCheckBox());
-        objectMap.put("isSelectedEnableSelectByPrimaryKeyCheckBox",
-                mapperProperties.isSelectedEnableSelectByPrimaryKeyCheckBox());
-        objectMap.put("isSelectedEnableSelectByExampleCheckBox",
-                mapperProperties.isSelectedEnableSelectByExampleCheckBox());
-        objectMap.put("isSelectedEnableUpdateByPrimaryKeyCheckBox",
-                mapperProperties.isSelectedEnableUpdateByPrimaryKeyCheckBox());
-        objectMap.put("isSelectedEnableUpdateByExampleCheckBox",
-                mapperProperties.isSelectedEnableUpdateByExampleCheckBox());
-        objectMap.put("isSelectedEnableDeleteByPrimaryKeyCheckBox",
-                mapperProperties.isSelectedEnableDeleteByPrimaryKeyCheckBox());
-        objectMap.put("isSelectedEnableDeleteByExampleCheckBox",
-                mapperProperties.isSelectedEnableDeleteByExampleCheckBox());
-        objectMap.put("isSelectedEnableCountByExampleCheckBox",
-                mapperProperties.isSelectedEnableCountByExampleCheckBox());
+        objectMap.put("isSelectedEnableSelectByPrimaryKeyCheckBox", mapperProperties.isSelectedEnableSelectByPrimaryKeyCheckBox());
+        objectMap.put("isSelectedEnableSelectByExampleCheckBox", mapperProperties.isSelectedEnableSelectByExampleCheckBox());
+        objectMap.put("isSelectedEnableUpdateByPrimaryKeyCheckBox", mapperProperties.isSelectedEnableUpdateByPrimaryKeyCheckBox());
+        objectMap.put("isSelectedEnableUpdateByExampleCheckBox", mapperProperties.isSelectedEnableUpdateByExampleCheckBox());
+        objectMap.put("isSelectedEnableDeleteByPrimaryKeyCheckBox", mapperProperties.isSelectedEnableDeleteByPrimaryKeyCheckBox());
+        objectMap.put("isSelectedEnableDeleteByExampleCheckBox", mapperProperties.isSelectedEnableDeleteByExampleCheckBox());
+        objectMap.put("isSelectedEnableCountByExampleCheckBox", mapperProperties.isSelectedEnableCountByExampleCheckBox());
 
         // mapperXml
         MapperXmlProperties mapperXmlProperties = generatorProperties.getMapperXmlProperties();
@@ -218,13 +199,10 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("servicePackage", serviceProperties.getPackageName());
         objectMap.put("serviceName", serviceName);
         objectMap.put("serviceInstanceName", StringUtils.uncapitalize(serviceName));
-        objectMap.put("serviceFullClassName",
-                ClassUtils.getFullClassName(serviceProperties.getPackageName(), serviceName));
+        objectMap.put("serviceFullClassName", ClassUtils.getFullClassName(serviceProperties.getPackageName(), serviceName));
         objectMap.put("superServiceClass", serviceProperties.getSuperServiceClass());
-        objectMap.put("superServiceClassName",
-                ClassUtils.getClassNameByFullClassName(serviceProperties.getSuperServiceClass()));
-        objectMap.put("superServiceClassPackage",
-                ClassUtils.getPackageNameByFullClassName(serviceProperties.getSuperServiceClass()));
+        objectMap.put("superServiceClassName", ClassUtils.getClassNameByFullClassName(serviceProperties.getSuperServiceClass()));
+        objectMap.put("superServiceClassPackage", ClassUtils.getPackageNameByFullClassName(serviceProperties.getSuperServiceClass()));
 
         // serviceImpl
         ServiceImplProperties serviceImplProperties = generatorProperties.getServiceImplProperties();
@@ -232,13 +210,10 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("serviceImplTemplatePath", Constant.SERVICE_IMPL_TEMPLATE_PATH);
         objectMap.put("serviceImplPackage", serviceImplProperties.getPackageName());
         objectMap.put("serviceImplName", serviceImplName);
-        objectMap.put("serviceImplFullClassName",
-                ClassUtils.getFullClassName(serviceImplProperties.getPackageName(), serviceImplName));
+        objectMap.put("serviceImplFullClassName", ClassUtils.getFullClassName(serviceImplProperties.getPackageName(), serviceImplName));
         objectMap.put("superServiceImplClass", serviceImplProperties.getSuperServiceImplClass());
-        objectMap.put("superServiceImplClassName",
-                ClassUtils.getClassNameByFullClassName(serviceImplProperties.getSuperServiceImplClass()));
-        objectMap.put("superServiceImplClassPackage",
-                ClassUtils.getPackageNameByFullClassName(serviceImplProperties.getSuperServiceImplClass()));
+        objectMap.put("superServiceImplClassName", ClassUtils.getClassNameByFullClassName(serviceImplProperties.getSuperServiceImplClass()));
+        objectMap.put("superServiceImplClassPackage", ClassUtils.getPackageNameByFullClassName(serviceImplProperties.getSuperServiceImplClass()));
 
 
         // facade
@@ -248,12 +223,10 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("facadePackage", facadeProperties.getPackageName());
         objectMap.put("facadeName", facadeName);
         objectMap.put("facadeInstanceName", StringUtils.uncapitalize(facadeName));
-        objectMap.put("facadeFullClassName",
-                ClassUtils.getFullClassName(facadeProperties.getPackageName(), facadeName));
+        objectMap.put("facadeFullClassName", ClassUtils.getFullClassName(facadeProperties.getPackageName(), facadeName));
         objectMap.put("superFacadeClass", facadeProperties.getSuperClass());
         objectMap.put("superFacadeClassName", ClassUtils.getClassNameByFullClassName(facadeProperties.getSuperClass()));
-        objectMap.put("superFacadeClassPackage",
-                ClassUtils.getPackageNameByFullClassName(facadeProperties.getSuperClass()));
+        objectMap.put("superFacadeClassPackage", ClassUtils.getPackageNameByFullClassName(facadeProperties.getSuperClass()));
 
         // facadeImpl
         FacadeImplProperties facadeImplProperties = generatorProperties.getFacadeImplProperties();
@@ -261,13 +234,10 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("facadeImplTemplatePath", Constant.FACADE_IMPL_TEMPLATE_PATH);
         objectMap.put("facadeImplPackage", facadeImplProperties.getPackageName());
         objectMap.put("facadeImplName", facadeImplName);
-        objectMap.put("facadeImplFullClassName",
-                ClassUtils.getFullClassName(facadeImplProperties.getPackageName(), facadeImplName));
+        objectMap.put("facadeImplFullClassName", ClassUtils.getFullClassName(facadeImplProperties.getPackageName(), facadeImplName));
         objectMap.put("superFacadeImplClass", facadeImplProperties.getSuperClass());
-        objectMap.put("superFacadeImplClassName",
-                ClassUtils.getClassNameByFullClassName(facadeImplProperties.getSuperClass()));
-        objectMap.put("superFacadeImplClassPackage",
-                ClassUtils.getPackageNameByFullClassName(facadeImplProperties.getSuperClass()));
+        objectMap.put("superFacadeImplClassName", ClassUtils.getClassNameByFullClassName(facadeImplProperties.getSuperClass()));
+        objectMap.put("superFacadeImplClassPackage", ClassUtils.getPackageNameByFullClassName(facadeImplProperties.getSuperClass()));
 
         // controller
         ControllerProperties controllerProperties = generatorProperties.getControllerProperties();
@@ -275,8 +245,7 @@ public abstract class AbstractGeneratorService implements IGeneratorService {
         objectMap.put("controllerTemplatePath", Constant.CONTROLLER_TEMPLATE_PATH);
         objectMap.put("controllerPackage", controllerProperties.getPackageName());
         objectMap.put("controllerName", controllerName);
-        objectMap.put("controllerFullClassName",
-                ClassUtils.getFullClassName(controllerProperties.getPackageName(), controllerName));
+        objectMap.put("controllerFullClassName", ClassUtils.getFullClassName(controllerProperties.getPackageName(), controllerName));
         objectMap.put("isSelectedSwaggerCheckBox", controllerProperties.isSelectedSwaggerCheckBox());
         objectMap.put("controllerMappingHyphen", CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_HYPHEN, tableName));
         return objectMap;

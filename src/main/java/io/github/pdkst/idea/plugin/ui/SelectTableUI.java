@@ -13,11 +13,7 @@ import com.caojx.idea.plugin.generator.IGeneratorService;
 import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import io.github.pdkst.idea.plugin.common.utils.Database;
-import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
-import io.github.pdkst.idea.plugin.common.utils.DatabaseWithOutPwdListCellRenderer;
-import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
-import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
+import io.github.pdkst.idea.plugin.common.utils.*;
 import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
 import io.github.pdkst.idea.plugin.persistent.DatabaseStateService;
 import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
@@ -143,8 +139,7 @@ public class SelectTableUI extends DialogWrapper {
         try {
             Database mysql = DatabaseHelper.getMySql(database, new HashMap<>(4));
 
-            String tableNamePattern = StringUtils.isBlank(
-                    tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
+            String tableNamePattern = StringUtils.isBlank(tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
             List<TableInfo> tableList = mysql.getTables(tableNamePattern);
 
             dataModel.setDataList(tableList);
@@ -189,13 +184,10 @@ public class SelectTableUI extends DialogWrapper {
         MyMessages.showInfoMessage(project, "生成代码执行完成", "info");
     }
 
-    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig,
-                                      EntityProperties entityProperties,
-                                      List<String> selectedTableNames) {
+    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig, EntityProperties entityProperties, List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DatabaseHelper.getMySql(databaseConfig,
-                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
+            Database database = DatabaseHelper.getMySql(databaseConfig, JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
             return database.getTablesAndFields(selectedTableNames);
         } catch (SQLException e) {
             MyMessages.showWarningDialog(project, "获取表信息失败", "info");

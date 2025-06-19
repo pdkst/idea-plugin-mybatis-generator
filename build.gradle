@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.intellij' version '1.17.4'
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'com.caojx'
@@ -20,12 +21,23 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j:9.2.0'
     implementation 'com.oracle.ojdbc:ojdbc10:19.3.0.0'
     implementation 'org.freemarker:freemarker:2.3.30'
-    implementation 'com.alibaba.fastjson2:fastjson2:2.0.52'
+    implementation 'com.alibaba.fastjson2:fastjson2:2.0.57'
     implementation 'org.dom4j:dom4j:2.1.4'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    compileOnly 'org.projectlombok:lombok:1.18.36'
-    annotationProcessor 'org.projectlombok:lombok:1.18.36'
+    compileOnly 'org.projectlombok:lombok:1.18.38'
+    annotationProcessor 'org.projectlombok:lombok:1.18.38'
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'org.dom4j', 'io.github.pdkst.idea.plugin.shaded.dom4j'
+    minimize()
+}
+
+buildPlugin {
+    dependsOn shadowJar
+    from(shadowJar.outputs.files)
 }
 
 test {
@@ -91,8 +103,5 @@ patchPluginXml {
 }
 
 runIde {
-    jvmArgs = [
-            '--add-opens', 'java.base/java.io=ALL-UNNAMED'
-    ]
+    jvmArgs = ['--add-opens', 'java.base/java.io=ALL-UNNAMED']
 }
-

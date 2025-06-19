@@ -48,4 +48,8 @@ public class JsonUtils {
             e.printStackTrace();
         }
     }
+
+    public static String toJson(Object object) {
+        return JSON.toJSONString(object, JSONWriter.Feature.PrettyFormat);
+    }
 }

@@ -4,6 +4,7 @@ import io.github.pdkst.idea.plugin.common.pojo.MybatisMethod;
 import io.github.pdkst.idea.plugin.common.pojo.MybatisXml;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
@@ -101,7 +102,7 @@ public class MybatisXmlMerger {
             return null;
         }
         // 创建 SAXReader 对象
-        SAXReader reader = new SAXReader();
+        SAXReader reader = new SAXReader(new DocumentFactory());
         // 读取第一个 XML 文件
         return reader.read(file);
     }
