@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 import java.sql.JDBCType;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Map;
  */
 @Data
 public class TableField implements Serializable {
+    private static final List<String> LONG_TYPE_COLUMN_NAME_LIST = Arrays.asList("user_id", "uid", "created_by", "updated_by");
 
     /**
      * 字段列名
@@ -94,6 +97,9 @@ public class TableField implements Serializable {
         this.jdbcDateFlag = jdbcTypeMappingHandler.isJDBCDateColumn(sqlType);
         this.jdbcTimeFlag = jdbcTypeMappingHandler.isJDBCTimeColumn(sqlType);
         this.blobFlag = jdbcTypeMappingHandler.isBLOBColumn(sqlType);
+        if (LONG_TYPE_COLUMN_NAME_LIST.contains(StringUtils.lowerCase(columnName))) {
+            this.type = Long.class;
+        }
     }
 
     public String getTypeSimpleName() {
