@@ -36,6 +36,9 @@ public class TableInfoTableModel extends DefaultTableModel {
             if ((boolean) aValue) {
                 selectedSet.add(tableInfo);
                 refreshData();
+            } else {
+                selectedSet.remove(tableInfo);
+                refreshData();
             }
         }
     }
