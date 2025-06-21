@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SelectTableUI extends DialogWrapper {
+public class TableSelectorUI extends DialogWrapper {
     private final Project project;
     private final PersistentStateService persistentStateService;
     private final GlobalPersistentStateService globalPersistentStateService;
@@ -57,7 +57,7 @@ public class SelectTableUI extends DialogWrapper {
     private JButton btnGeneratorSetting;
     private JButton btnCancel;
 
-    public SelectTableUI(Project project) {
+    public TableSelectorUI(Project project) {
         super(project); // use current window as parent
         init();
         setTitle("数据库表选择");
@@ -101,11 +101,11 @@ public class SelectTableUI extends DialogWrapper {
         });
         btnConfigDataBase.addActionListener(e -> {
             // 打开数据库配置界面
-            DataSourcesSettingUI dataSourcesSettingUI = new DataSourcesSettingUI(project);
-            dataSourcesSettingUI.addListener(args -> {
+            DataSourcesListUI dataSourcesListUI = new DataSourcesListUI(project);
+            dataSourcesListUI.addListener(args -> {
                 refreshDatabaseTable();
             });
-            dataSourcesSettingUI.show();
+            dataSourcesListUI.show();
         });
         // 跳转到生成代码配置页面
         btnGeneratorSetting.addActionListener(e -> {

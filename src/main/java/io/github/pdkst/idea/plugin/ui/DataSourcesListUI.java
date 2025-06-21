@@ -18,7 +18,7 @@ import java.util.List;
  * @author caojx
  * @date 2022/4/10 10:00 AM
  */
-public class DataSourcesSettingUI extends AbstractDialog {
+public class DataSourcesListUI extends AbstractDialog {
     private JPanel mainPanel;
     private JTable dataSourcesTable;
     private JButton addBtn;
@@ -33,7 +33,7 @@ public class DataSourcesSettingUI extends AbstractDialog {
      */
     public static DatabaseTableModel tableModel = new DatabaseTableModel();
 
-    public DataSourcesSettingUI(@NotNull Project project, RefreshListener... listeners) {
+    public DataSourcesListUI(@NotNull Project project, RefreshListener... listeners) {
         super(project, listeners);
         init();
 
@@ -108,13 +108,13 @@ public class DataSourcesSettingUI extends AbstractDialog {
             }
             final List<DatabaseSensitiveProperties> databases = databaseListStateService.getDatabases();
             DatabaseSensitiveProperties database = databases.get(selectedRow);
-            EditDatabaseSettingUI editDatabaseSetting = new EditDatabaseSettingUI(project, database, this);
+            EditDataSourcesUI editDatabaseSetting = new EditDataSourcesUI(project, database, this);
             editDatabaseSetting.show();
         });
 
         // 添加数据库
         addBtn.addActionListener(e -> {
-            EditDatabaseSettingUI editDatabaseSetting = new EditDatabaseSettingUI(project, null, this);
+            EditDataSourcesUI editDatabaseSetting = new EditDataSourcesUI(project, null, this);
             editDatabaseSetting.show();
         });
     }

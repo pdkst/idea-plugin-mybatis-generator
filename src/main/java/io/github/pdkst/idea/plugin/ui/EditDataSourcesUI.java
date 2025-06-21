@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
  * @author pdkst
  * @since 2025-03-28 22:59:01
  */
-public class EditDatabaseSettingUI extends AbstractDialog {
+public class EditDataSourcesUI extends AbstractDialog {
     private JPanel mainPanel;
     private JComboBox<DataBaseTypeEnum> databaseTypeComboBox;
     private JTextField hostTf;
@@ -50,9 +50,9 @@ public class EditDatabaseSettingUI extends AbstractDialog {
     private final DatabaseSensitiveProperties editDatabase;
 
 
-    public EditDatabaseSettingUI(@NotNull Project project,
-                                 @Nullable DatabaseSensitiveProperties editDatabase,
-                                 RefreshListener... refreshListeners) {
+    public EditDataSourcesUI(@NotNull Project project,
+                             @Nullable DatabaseSensitiveProperties editDatabase,
+                             RefreshListener... refreshListeners) {
         super(project, refreshListeners);
         init();
 
@@ -269,7 +269,7 @@ public class EditDatabaseSettingUI extends AbstractDialog {
             triggerRefresh();
 
             // 隐藏
-            EditDatabaseSettingUI.this.dispose();
+            EditDataSourcesUI.this.dispose();
         });
     }
 

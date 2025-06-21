@@ -573,8 +573,8 @@ public class GeneratorSettingUI extends AbstractDialog {
         generatorBtn.addActionListener(e -> {
             // 获取代码生成配置
             savePersistentState();
-            final SelectTableUI selectTableUI = new SelectTableUI(project);
-            selectTableUI.show();
+            final TableSelectorUI tableSelectorUI = new TableSelectorUI(project);
+            tableSelectorUI.show();
         });
 
         // 取消

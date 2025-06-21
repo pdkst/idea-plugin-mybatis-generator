@@ -4,7 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
-import io.github.pdkst.idea.plugin.ui.SelectTableUI;
+import io.github.pdkst.idea.plugin.ui.TableSelectorUI;
 
 /**
  * 代码生成Action
@@ -20,7 +20,7 @@ public class GeneratorAction extends AnAction {
         Project project = e.getRequiredData(CommonDataKeys.PROJECT);
 
         // 显示配置窗体
-        SelectTableUI generatorSettingUI = new SelectTableUI(project);
+        TableSelectorUI generatorSettingUI = new TableSelectorUI(project);
         generatorSettingUI.show();
     }
 }
