@@ -1,9 +1,10 @@
 package io.github.pdkst.idea.plugin.common.pojo;
 
 import lombok.Data;
-import org.dom4j.Element;
 
 /**
+ * MyBatis方法POJO类
+ *
  * @author pdkst
  * @since 2025/03/08
  */
