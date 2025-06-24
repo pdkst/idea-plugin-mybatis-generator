@@ -30,8 +30,12 @@ public class MybatisXmlMerger {
                 return null;
             }
             return parse(document);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            if (e instanceof ExceptionInInitializerError) {
+                e.getCause().printStackTrace();
+            } else {
+                e.printStackTrace();
+            }
             return null;
         }
     }
