@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.github.pdkst.idea.plugin.common.pojo.MybatisXml;
 import io.github.pdkst.idea.plugin.generator.MybatisXmlMerger;
-import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
+import io.github.pdkst.idea.plugin.state.GlobalPersistentState;
 import lombok.CustomLog;
 import org.apache.commons.lang3.StringUtils;
 

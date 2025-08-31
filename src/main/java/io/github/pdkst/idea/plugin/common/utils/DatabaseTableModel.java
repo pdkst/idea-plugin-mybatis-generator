@@ -1,11 +1,10 @@
 package io.github.pdkst.idea.plugin.common.utils;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

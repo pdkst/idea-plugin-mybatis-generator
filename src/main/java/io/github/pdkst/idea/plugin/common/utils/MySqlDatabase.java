@@ -1,6 +1,6 @@
 package io.github.pdkst.idea.plugin.common.utils;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableField;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import lombok.Data;

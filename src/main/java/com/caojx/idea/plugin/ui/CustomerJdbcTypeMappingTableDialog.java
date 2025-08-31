@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBScrollPane;
-import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.state.GlobalPersistentStateService;
 import io.github.pdkst.idea.plugin.ui.GeneratorSettingUI;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;

@@ -1,7 +1,7 @@
 package io.github.pdkst.idea.plugin.ui;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
-import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.EntityProperties;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
@@ -10,13 +10,13 @@ import com.caojx.idea.plugin.generator.AbstractGeneratorService;
 import com.caojx.idea.plugin.generator.GeneratorContext;
 import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
 import com.caojx.idea.plugin.generator.IGeneratorService;
-import com.caojx.idea.plugin.persistent.PersistentStateService;
+import io.github.pdkst.idea.plugin.state.PersistentStateService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.pdkst.idea.plugin.common.utils.*;
-import io.github.pdkst.idea.plugin.persistent.DatabaseListStateService;
-import io.github.pdkst.idea.plugin.persistent.DatabaseStateService;
-import io.github.pdkst.idea.plugin.persistent.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.state.DatabaseListStateService;
+import io.github.pdkst.idea.plugin.state.DatabaseStateService;
+import io.github.pdkst.idea.plugin.state.GlobalPersistentStateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;

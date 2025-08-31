@@ -1,9 +1,8 @@
-package io.github.pdkst.idea.plugin.persistent;
+package io.github.pdkst.idea.plugin.state;
 
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
-import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
-import com.caojx.idea.plugin.persistent.PersistentExtConfig;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;

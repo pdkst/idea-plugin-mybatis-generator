@@ -1,4 +1,4 @@
-package com.caojx.idea.plugin.common.pojo;
+package io.github.pdkst.idea.plugin.common.pojo;
 
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;

@@ -1,4 +1,4 @@
-package com.caojx.idea.plugin.common.enums;
+package io.github.pdkst.idea.plugin.common.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

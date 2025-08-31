@@ -1,8 +1,7 @@
-package com.caojx.idea.plugin.persistent;
+package io.github.pdkst.idea.plugin.state;
 
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 

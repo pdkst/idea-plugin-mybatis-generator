@@ -1,4 +1,4 @@
-package io.github.pdkst.idea.plugin.persistent;
+package io.github.pdkst.idea.plugin.state;
 
 
 import com.intellij.openapi.components.PersistentStateComponent;

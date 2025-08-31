@@ -1,6 +1,6 @@
 package io.github.pdkst.idea.plugin.common.utils;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseSensitiveProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 
 import javax.swing.*;
 import java.awt.*;

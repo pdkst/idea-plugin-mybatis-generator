@@ -1,6 +1,6 @@
-package com.caojx.idea.plugin.persistent;
+package io.github.pdkst.idea.plugin.state;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
 import com.caojx.idea.plugin.common.utils.JsonUtils;
 import lombok.Data;
 

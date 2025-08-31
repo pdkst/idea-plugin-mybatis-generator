@@ -3,11 +3,9 @@ package com.caojx.idea.plugin.generator;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
 import com.intellij.util.xmlb.annotations.Transient;
-import io.github.pdkst.idea.plugin.persistent.DatabaseState;
-import io.github.pdkst.idea.plugin.persistent.GlobalPersistentState;
+import io.github.pdkst.idea.plugin.state.DatabaseState;
+import io.github.pdkst.idea.plugin.state.GlobalPersistentState;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.ArrayList;

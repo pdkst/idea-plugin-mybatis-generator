@@ -1,9 +1,8 @@
-package io.github.pdkst.idea.plugin.persistent;
+package io.github.pdkst.idea.plugin.state;
 
-import com.caojx.idea.plugin.common.pojo.DatabaseProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
