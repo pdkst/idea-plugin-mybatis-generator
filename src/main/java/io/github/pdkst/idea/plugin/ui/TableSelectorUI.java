@@ -82,6 +82,14 @@ public class TableSelectorUI extends DialogWrapper {
     }
 
     private void initData() {
+        initProperties();
+        dataModel = new TableInfoTableModel();
+        table.setModel(dataModel);
+        refreshDatabaseTable();
+        databaseComboBox.setRenderer(new DatabaseWithOutPwdListCellRenderer());
+    }
+
+    private void initProperties() {
         GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
         this.entityGenerateCheckBox.setSelected(generatorProperties.getEntityProperties().isSelectedGenerateCheckBox());
         this.entityExampleGenerateCheckBox.setSelected(
@@ -98,10 +106,25 @@ public class TableSelectorUI extends DialogWrapper {
                 generatorProperties.getFacadeImplProperties().isSelectedGenerateCheckBox());
         this.controllerGenerateCheckBox.setSelected(
                 generatorProperties.getControllerProperties().isSelectedGenerateCheckBox());
-        dataModel = new TableInfoTableModel();
-        table.setModel(dataModel);
-        refreshDatabaseTable();
-        databaseComboBox.setRenderer(new DatabaseWithOutPwdListCellRenderer());
+    }
+
+    private void saveProperties() {
+        final GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
+        generatorProperties.getEntityProperties().setSelectedGenerateCheckBox(entityGenerateCheckBox.isSelected());
+        generatorProperties.getEntityProperties()
+                .setSelectedGenerateEntityExampleCheckBox(entityExampleGenerateCheckBox.isSelected());
+        generatorProperties.getMapperProperties().setSelectedGenerateCheckBox(mapperGenerateCheckBox.isSelected());
+        generatorProperties.getMapperXmlProperties()
+                .setSelectedGenerateCheckBox(mapperXmlGenerateCheckBox.isSelected());
+        generatorProperties.getServiceProperties().setSelectedGenerateCheckBox(serviceGenerateCheckBox.isSelected());
+        generatorProperties.getServiceImplProperties()
+                .setSelectedGenerateCheckBox(serviceImplGenerateCheckBox.isSelected());
+        generatorProperties.getFacadeProperties().setSelectedGenerateCheckBox(facadeGenerateCheckBox.isSelected());
+        generatorProperties.getFacadeImplProperties()
+                .setSelectedGenerateCheckBox(facadeImplGenerateCheckBox.isSelected());
+        generatorProperties.getControllerProperties()
+                .setSelectedGenerateCheckBox(controllerGenerateCheckBox.isSelected());
+        project.save();
     }
 
     private void initListener() {
@@ -163,6 +186,7 @@ public class TableSelectorUI extends DialogWrapper {
     }
 
     private void refreshDatabaseTable() {
+        initProperties();
         List<DatabaseSensitiveProperties> extDatabases = databaseListStateService.getDatabases();
         initDatabaseComBox(extDatabases, databaseStateService.getCurrentDatabase());
         tfTablePrefix.setText(ObjectUtils.defaultIfNull(databaseStateService.getTablePrefix(), "t_"));
@@ -186,25 +210,6 @@ public class TableSelectorUI extends DialogWrapper {
         } catch (Exception ex) {
             MyMessages.showWarningDialog(project, "数据库连接错误,请检查配置.", "Warning");
         }
-    }
-
-    private void saveProperties() {
-        final GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
-        generatorProperties.getEntityProperties().setSelectedGenerateCheckBox(entityGenerateCheckBox.isSelected());
-        generatorProperties.getEntityProperties()
-                .setSelectedGenerateEntityExampleCheckBox(entityExampleGenerateCheckBox.isSelected());
-        generatorProperties.getMapperProperties().setSelectedGenerateCheckBox(mapperGenerateCheckBox.isSelected());
-        generatorProperties.getMapperXmlProperties()
-                .setSelectedGenerateCheckBox(mapperXmlGenerateCheckBox.isSelected());
-        generatorProperties.getServiceProperties().setSelectedGenerateCheckBox(serviceGenerateCheckBox.isSelected());
-        generatorProperties.getServiceImplProperties()
-                .setSelectedGenerateCheckBox(serviceImplGenerateCheckBox.isSelected());
-        generatorProperties.getFacadeProperties().setSelectedGenerateCheckBox(facadeGenerateCheckBox.isSelected());
-        generatorProperties.getFacadeImplProperties()
-                .setSelectedGenerateCheckBox(facadeImplGenerateCheckBox.isSelected());
-        generatorProperties.getControllerProperties()
-                .setSelectedGenerateCheckBox(controllerGenerateCheckBox.isSelected());
-        project.save();
     }
 
     public void generateCode() {
