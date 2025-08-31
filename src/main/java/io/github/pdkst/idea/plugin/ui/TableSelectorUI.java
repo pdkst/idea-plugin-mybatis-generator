@@ -147,7 +147,7 @@ public class TableSelectorUI extends DialogWrapper {
         // 跳转到生成代码配置页面
         btnGeneratorSetting.addActionListener(e -> {
             // 打开数据库配置界面
-            project.save();
+            saveProperties();
             GeneratorSettingUI generatorSettingUI = new GeneratorSettingUI(project);
             generatorSettingUI.show();
         });
@@ -157,6 +157,7 @@ public class TableSelectorUI extends DialogWrapper {
         });
         btnGenerate.addActionListener(e -> {
             // 生成代码
+            saveProperties();
             generateCode();
         });
     }
@@ -168,17 +169,7 @@ public class TableSelectorUI extends DialogWrapper {
     }
 
     private void searchTables() {
-        final GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
-        generatorProperties.getEntityProperties().setSelectedGenerateCheckBox(entityGenerateCheckBox.isSelected());
-        generatorProperties.getEntityProperties().setSelectedGenerateEntityExampleCheckBox(entityExampleGenerateCheckBox.isSelected());
-        generatorProperties.getMapperProperties().setSelectedGenerateCheckBox(mapperGenerateCheckBox.isSelected());
-        generatorProperties.getMapperXmlProperties().setSelectedGenerateCheckBox(mapperXmlGenerateCheckBox.isSelected());
-        generatorProperties.getServiceProperties().setSelectedGenerateCheckBox(serviceGenerateCheckBox.isSelected());
-        generatorProperties.getServiceImplProperties().setSelectedGenerateCheckBox(serviceImplGenerateCheckBox.isSelected());
-        generatorProperties.getFacadeProperties().setSelectedGenerateCheckBox(facadeGenerateCheckBox.isSelected());
-        generatorProperties.getFacadeImplProperties().setSelectedGenerateCheckBox(facadeImplGenerateCheckBox.isSelected());
-        generatorProperties.getControllerProperties().setSelectedGenerateCheckBox(controllerGenerateCheckBox.isSelected());
-        project.save();
+        saveProperties();
         DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
         if (database == null) {
             MyMessages.showWarningDialog(project, "请选择一个数据库", "Warning");
@@ -195,6 +186,25 @@ public class TableSelectorUI extends DialogWrapper {
         } catch (Exception ex) {
             MyMessages.showWarningDialog(project, "数据库连接错误,请检查配置.", "Warning");
         }
+    }
+
+    private void saveProperties() {
+        final GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
+        generatorProperties.getEntityProperties().setSelectedGenerateCheckBox(entityGenerateCheckBox.isSelected());
+        generatorProperties.getEntityProperties()
+                .setSelectedGenerateEntityExampleCheckBox(entityExampleGenerateCheckBox.isSelected());
+        generatorProperties.getMapperProperties().setSelectedGenerateCheckBox(mapperGenerateCheckBox.isSelected());
+        generatorProperties.getMapperXmlProperties()
+                .setSelectedGenerateCheckBox(mapperXmlGenerateCheckBox.isSelected());
+        generatorProperties.getServiceProperties().setSelectedGenerateCheckBox(serviceGenerateCheckBox.isSelected());
+        generatorProperties.getServiceImplProperties()
+                .setSelectedGenerateCheckBox(serviceImplGenerateCheckBox.isSelected());
+        generatorProperties.getFacadeProperties().setSelectedGenerateCheckBox(facadeGenerateCheckBox.isSelected());
+        generatorProperties.getFacadeImplProperties()
+                .setSelectedGenerateCheckBox(facadeImplGenerateCheckBox.isSelected());
+        generatorProperties.getControllerProperties()
+                .setSelectedGenerateCheckBox(controllerGenerateCheckBox.isSelected());
+        project.save();
     }
 
     public void generateCode() {
