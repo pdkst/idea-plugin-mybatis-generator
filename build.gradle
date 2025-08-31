@@ -47,13 +47,18 @@ patchPluginXml {
     sinceBuild = '193'
     changeNotes = """
     Since 2025年3月7日 by pdkst<br>
-    1. 添加表前缀<br>
-    2. 表名查找前后增加%<br>
-    3. 包名选择默认从basePackage开始<br>
-    <br>
-    Since 2025年3月8日23:58:29 by pdkst<br>
-    1. 增加合并原来的mybatis xml<br>
+      1. 添加表前缀<br>
+      2. 表名查找前后增加%，enter键查询<br>
+      3. 包名选择默认从basePackage开始<br>
+      4. 增加facade模式<br>
+      5. 增加facade实现类<br>
+      6. 拆分单独生成UI<br>
+      7. 重新生成后合并原来的mybatis xml方法<br>
+      
     
+    <br>
+    
+    Before 2025年3月7日 by caojx<br>
       v1.3.7<br>
       <em>1.save database configuration to directory user.home/.myBatisCodeGenerator/ext-config.json </em><br>
       
