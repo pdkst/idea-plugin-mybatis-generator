@@ -1,4 +1,4 @@
-package com.caojx.idea.plugin.generator;
+package io.github.pdkst.idea.plugin.generator;
 
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;

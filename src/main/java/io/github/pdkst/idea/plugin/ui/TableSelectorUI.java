@@ -1,22 +1,25 @@
 package io.github.pdkst.idea.plugin.ui;
 
-import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
-import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.EntityProperties;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
-import com.caojx.idea.plugin.generator.AbstractGeneratorService;
-import com.caojx.idea.plugin.generator.GeneratorContext;
-import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
-import com.caojx.idea.plugin.generator.IGeneratorService;
-import io.github.pdkst.idea.plugin.state.PersistentStateService;
+import io.github.pdkst.idea.plugin.generator.GeneratorContext;
+import io.github.pdkst.idea.plugin.generator.GeneratorService;
+import io.github.pdkst.idea.plugin.generator.engin.FreemarkerTemplateEngine;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import io.github.pdkst.idea.plugin.common.utils.*;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
+import io.github.pdkst.idea.plugin.common.utils.Database;
+import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
+import io.github.pdkst.idea.plugin.common.utils.DatabaseWithOutPwdListCellRenderer;
+import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
+import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
 import io.github.pdkst.idea.plugin.state.DatabaseListStateService;
 import io.github.pdkst.idea.plugin.state.DatabaseStateService;
 import io.github.pdkst.idea.plugin.state.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.state.PersistentStateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +43,7 @@ public class TableSelectorUI extends DialogWrapper {
     private final DatabaseStateService databaseStateService;
 
     // 生成代码业务接口
-    private IGeneratorService generatorService = new GeneratorServiceImpl();
+    private GeneratorService generatorService = new GeneratorService(new FreemarkerTemplateEngine());
 
     // 界面
     private JPanel contentPane;
@@ -231,7 +234,7 @@ public class TableSelectorUI extends DialogWrapper {
         generatorContext.setGeneratorProperties(generatorProperties);
         generatorContext.setGlobalPersistentState(globalPersistentStateService.getState());
         generatorContext.setDatabaseState(databaseStateService.getState());
-        String message = AbstractGeneratorService.validGeneratorData(generatorContext);
+        String message = GeneratorService.validGeneratorData(generatorContext);
         if (StringUtils.isNotBlank(message)) {
             MyMessages.showWarningDialog(project, message, "info");
             return;
