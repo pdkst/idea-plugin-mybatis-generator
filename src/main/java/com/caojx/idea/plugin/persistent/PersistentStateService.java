@@ -1,7 +1,6 @@
 package com.caojx.idea.plugin.persistent;
 
 import com.intellij.openapi.components.PersistentStateComponent;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -27,11 +26,12 @@ public class PersistentStateService implements PersistentStateComponent<Persiste
     private PersistentState persistentData = new PersistentState();
 
     public static PersistentStateService getInstance(@NotNull Project project) {
-        return ServiceManager.getService(project, PersistentStateService.class);
+        return project.getService(PersistentStateService.class);
     }
 
+    @Nullable
     @Override
-    public @Nullable PersistentState getState() {
+    public PersistentState getState() {
         if (this.persistentData == null) {
             this.persistentData = new PersistentState();
         }

@@ -16,8 +16,6 @@ import com.caojx.idea.plugin.common.properties.ServiceImplProperties;
 import com.caojx.idea.plugin.common.properties.ServiceProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.common.utils.UIUtils;
-import com.caojx.idea.plugin.generator.GeneratorServiceImpl;
-import com.caojx.idea.plugin.generator.IGeneratorService;
 import com.caojx.idea.plugin.persistent.PersistentState;
 import com.caojx.idea.plugin.persistent.PersistentStateService;
 import com.caojx.idea.plugin.ui.CustomerJdbcTypeMappingTableDialog;
@@ -39,7 +37,6 @@ import java.sql.JDBCType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -110,6 +107,7 @@ public class GeneratorSettingUI extends AbstractDialog {
     private JTextField modulePathTf;
     private JTextField basePackageTf;
     private JButton basePackageBtn;
+    // 选择生成的类
     private JCheckBox entityGenerateCheckBox;
     private JCheckBox mapperGenerateCheckBox;
     private JCheckBox mapperXmlGenerateCheckBox;
@@ -149,11 +147,6 @@ public class GeneratorSettingUI extends AbstractDialog {
     private Project project;
 
     /**
-     * 选中的表名列表
-     */
-    private Set<String> selectedTableNames = new HashSet<>();
-
-    /**
      * 自定义jdbc映射
      * -- SETTER --
      * 设置数据库映射关系
@@ -162,11 +155,6 @@ public class GeneratorSettingUI extends AbstractDialog {
      */
     @Setter
     private Map<String, String> customerJdbcTypeMappingMap = new HashMap<>();
-
-    /**
-     * 生成代码业务接口
-     */
-    private IGeneratorService generatorService = new GeneratorServiceImpl();
 
     /**
      * 基础模块名
@@ -703,7 +691,7 @@ public class GeneratorSettingUI extends AbstractDialog {
                 controllerNamePattern) ? Constant.DEFAULT_CONTROLLER_NAME_FORMAT : controllerNamePattern);
         controllerProperties.setSelectedSwaggerCheckBox(controllerSwaggerCheckBox.isSelected());
         generatorProperties.setControllerProperties(controllerProperties);
-
+        project.save();
         return generatorProperties;
     }
 

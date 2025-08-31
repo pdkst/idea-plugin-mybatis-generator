@@ -49,6 +49,16 @@ public class TableSelectorUI extends DialogWrapper {
     private JTextField tfTablePrefix;
     private JButton btnQueryTable;
     private JButton btnConfigDataBase;
+    // 选择生成的类
+    private JCheckBox entityGenerateCheckBox;
+    private JCheckBox mapperGenerateCheckBox;
+    private JCheckBox serviceGenerateCheckBox;
+    private JCheckBox facadeGenerateCheckBox;
+    private JCheckBox entityExampleGenerateCheckBox;
+    private JCheckBox controllerGenerateCheckBox;
+    private JCheckBox mapperXmlGenerateCheckBox;
+    private JCheckBox serviceImplGenerateCheckBox;
+    private JCheckBox facadeImplGenerateCheckBox;
     // 数据库表列表
     private JTable table;
     private TableInfoTableModel dataModel;
@@ -72,6 +82,22 @@ public class TableSelectorUI extends DialogWrapper {
     }
 
     private void initData() {
+        GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
+        this.entityGenerateCheckBox.setSelected(generatorProperties.getEntityProperties().isSelectedGenerateCheckBox());
+        this.entityExampleGenerateCheckBox.setSelected(
+                generatorProperties.getEntityProperties().isSelectedGenerateEntityExampleCheckBox());
+        this.mapperGenerateCheckBox.setSelected(generatorProperties.getMapperProperties().isSelectedGenerateCheckBox());
+        this.mapperXmlGenerateCheckBox.setSelected(
+                generatorProperties.getMapperXmlProperties().isSelectedGenerateCheckBox());
+        this.serviceGenerateCheckBox.setSelected(
+                generatorProperties.getServiceProperties().isSelectedGenerateCheckBox());
+        this.serviceImplGenerateCheckBox.setSelected(
+                generatorProperties.getServiceImplProperties().isSelectedGenerateCheckBox());
+        this.facadeGenerateCheckBox.setSelected(generatorProperties.getFacadeProperties().isSelectedGenerateCheckBox());
+        this.facadeImplGenerateCheckBox.setSelected(
+                generatorProperties.getFacadeImplProperties().isSelectedGenerateCheckBox());
+        this.controllerGenerateCheckBox.setSelected(
+                generatorProperties.getControllerProperties().isSelectedGenerateCheckBox());
         dataModel = new TableInfoTableModel();
         table.setModel(dataModel);
         refreshDatabaseTable();
@@ -87,6 +113,17 @@ public class TableSelectorUI extends DialogWrapper {
             // 重置表数据
             dataModel.clearData();
             databaseStateService.setCurrentDatabase(database.getIdentifierName());
+        });
+        // 设置表名正则输入框，键释放的时候
+        tfTableNameRegex.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                // 只监听enter
+                if (e.getKeyCode() != KeyEvent.VK_ENTER) {
+                    return;
+                }
+                searchTables();
+            }
         });
         tfTablePrefix.addKeyListener(new KeyAdapter() {
             @Override
@@ -131,6 +168,17 @@ public class TableSelectorUI extends DialogWrapper {
     }
 
     private void searchTables() {
+        final GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
+        generatorProperties.getEntityProperties().setSelectedGenerateCheckBox(entityGenerateCheckBox.isSelected());
+        generatorProperties.getEntityProperties().setSelectedGenerateEntityExampleCheckBox(entityExampleGenerateCheckBox.isSelected());
+        generatorProperties.getMapperProperties().setSelectedGenerateCheckBox(mapperGenerateCheckBox.isSelected());
+        generatorProperties.getMapperXmlProperties().setSelectedGenerateCheckBox(mapperXmlGenerateCheckBox.isSelected());
+        generatorProperties.getServiceProperties().setSelectedGenerateCheckBox(serviceGenerateCheckBox.isSelected());
+        generatorProperties.getServiceImplProperties().setSelectedGenerateCheckBox(serviceImplGenerateCheckBox.isSelected());
+        generatorProperties.getFacadeProperties().setSelectedGenerateCheckBox(facadeGenerateCheckBox.isSelected());
+        generatorProperties.getFacadeImplProperties().setSelectedGenerateCheckBox(facadeImplGenerateCheckBox.isSelected());
+        generatorProperties.getControllerProperties().setSelectedGenerateCheckBox(controllerGenerateCheckBox.isSelected());
+        project.save();
         DatabaseSensitiveProperties database = (DatabaseSensitiveProperties) databaseComboBox.getSelectedItem();
         if (database == null) {
             MyMessages.showWarningDialog(project, "请选择一个数据库", "Warning");
@@ -139,7 +187,8 @@ public class TableSelectorUI extends DialogWrapper {
         try {
             Database mysql = DatabaseHelper.getMySql(database, new HashMap<>(4));
 
-            String tableNamePattern = StringUtils.isBlank(tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
+            String tableNamePattern = StringUtils.isBlank(
+                    tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
             List<TableInfo> tableList = mysql.getTables(tableNamePattern);
 
             dataModel.setDataList(tableList);
@@ -184,10 +233,13 @@ public class TableSelectorUI extends DialogWrapper {
         MyMessages.showInfoMessage(project, "生成代码执行完成", "info");
     }
 
-    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig, EntityProperties entityProperties, List<String> selectedTableNames) {
+    private List<TableInfo> getTables(DatabaseSensitiveProperties databaseConfig,
+                                      EntityProperties entityProperties,
+                                      List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DatabaseHelper.getMySql(databaseConfig, JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
+            Database database = DatabaseHelper.getMySql(databaseConfig,
+                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
             return database.getTablesAndFields(selectedTableNames);
         } catch (SQLException e) {
             MyMessages.showWarningDialog(project, "获取表信息失败", "info");
