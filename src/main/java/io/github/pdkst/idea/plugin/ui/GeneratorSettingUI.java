@@ -115,6 +115,8 @@ public class GeneratorSettingUI extends AbstractDialog {
     private JCheckBox controllerGenerateCheckBox;
     private JCheckBox serviceImplGenerateCheckBox;
     private JCheckBox entityExampleGenerateCheckBox;
+    private JCheckBox facadeGenerateCheckBox;
+    private JCheckBox facadeImplGenerateCheckBox;
     private JTextField basePathTf;
     private JButton autoSetPackageAndPathBtn;
     private JButton modulePathBtn;
@@ -133,8 +135,6 @@ public class GeneratorSettingUI extends AbstractDialog {
     private JButton facadeImplPathBtn;
     private JButton facadeImplPackageBtn;
     private JButton superFacadeImplClassBtn;
-    private JCheckBox facadeGenerateCheckBox;
-    private JCheckBox facadeImplGenerateCheckBox;
 
     private JButton restConfigBtn;
     private JButton saveConfigBtn;
