@@ -14,7 +14,6 @@ import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +30,6 @@ import static java.util.Collections.singletonList;
  */
 @Getter
 public class MysqlDatabaseTableResolver implements TableResolver {
-    private static final List<String> LONG_TYPE_COLUMN_NAME_LIST = Arrays.asList("user_id", "uid", "created_by",
-            "updated_by");
-
     /**
      * 数据库
      */
@@ -165,15 +161,11 @@ public class MysqlDatabaseTableResolver implements TableResolver {
     }
 
     private boolean isIdentifyPatten(String columnName) {
-        String lowerCase = StringUtils.lowerCase(columnName);
-        if (LONG_TYPE_COLUMN_NAME_LIST.contains(lowerCase)) {
-            return true;
-        }
         if (StringUtils.isBlank(identifyPatten)) {
             return false;
         }
-        Pattern pattern = Pattern.compile(identifyPatten);
-        Matcher matcher = pattern.matcher(lowerCase);
+        Pattern pattern = Pattern.compile(identifyPatten, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(columnName);
         return matcher.find();
     }
 
