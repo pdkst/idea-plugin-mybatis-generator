@@ -18,4 +18,8 @@ public class DatabaseState {
      * 数据库前缀
      */
     private String tablePrefix;
+    /**
+     * 表id模式
+     */
+    private String identifyPattern;
 }

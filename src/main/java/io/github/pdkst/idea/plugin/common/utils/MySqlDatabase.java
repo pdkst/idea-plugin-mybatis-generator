@@ -1,24 +1,14 @@
 package io.github.pdkst.idea.plugin.common.utils;
 
 import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
-import com.caojx.idea.plugin.common.pojo.TableField;
-import com.caojx.idea.plugin.common.pojo.TableInfo;
 import lombok.Data;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-import java.sql.JDBCType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
-
-import static java.util.Collections.singletonList;
 
 @Data
 public class MySqlDatabase implements Database {
@@ -26,13 +16,8 @@ public class MySqlDatabase implements Database {
      * 数据库信息
      */
     private final DatabaseSensitiveProperties databaseWithPwd;
-    /**
-     * 自定义jdbc映射关系
-     */
-    private final Map<JDBCType, Class<?>> customerJdbcTypeMappingMap;
 
-    @Override
-    public String getVersion() throws SQLException {
+    private String getVersion() throws SQLException {
         return execute(connection -> {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT VERSION() AS MYSQL_VERSION");
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -44,7 +29,7 @@ public class MySqlDatabase implements Database {
     }
 
     @Override
-    public boolean testDatabase() {
+    public boolean testConnection() {
         try {
             String version = getVersion();
             return version != null;
@@ -53,7 +38,8 @@ public class MySqlDatabase implements Database {
         }
     }
 
-    private <T> T execute(SQLConnectionTask<T> task) throws SQLException {
+    @Override
+    public <T> T execute(SQLConnectionTask<T> task) throws SQLException {
         try (Connection connection = getConnection()) {
             return task.execute(connection);
         }
@@ -88,80 +74,5 @@ public class MySqlDatabase implements Database {
         properties.putIfAbsent("zeroDateTimeBehavior", "convertToNull");
         properties.putIfAbsent("useSSL", "false");
         return properties;
-    }
-
-
-    public TableInfo getTable(String tableName) throws SQLException {
-        List<TableInfo> tableInfos = execute(connection -> getTablesAndFields(connection, singletonList(tableName), true));
-        if (tableInfos == null || tableInfos.isEmpty()) {
-            return null;
-        }
-        return tableInfos.get(0);
-    }
-
-    @Override
-    public List<TableInfo> getTablesAndFields(List<String> tableNames) throws SQLException {
-        return execute(connection -> getTablesAndFields(connection, tableNames, true));
-    }
-
-    @Override
-    public List<TableInfo> getTables(List<String> tableNames) throws SQLException {
-        return execute(connection -> getTablesAndFields(connection, tableNames, false));
-    }
-
-    private List<TableInfo> getTablesAndFields(Connection conn, List<String> tableNames, boolean withFields) throws SQLException {
-        List<TableInfo> tableInfoList = new ArrayList<>();
-        DatabaseMetaData metaData = conn.getMetaData();
-        for (String tableName : tableNames) {
-            ResultSet rs = metaData.getTables(conn.getCatalog(), conn.getSchema(), tableName, new String[]{"TABLE"});
-            while (rs.next()) {
-                // 表注释
-                String tableNameResult = rs.getString("TABLE_NAME");
-                String remarks = rs.getString("REMARKS");
-                TableInfo tableInfo;
-                if (withFields) {
-                    // 列列表
-                    List<TableField> fields = getTableField(conn, tableNameResult);
-                    // 返回表信息
-                    tableInfo = new TableInfo(tableNameResult, remarks, fields);
-                } else {
-                    // 列列表
-                    tableInfo = new TableInfo(tableNameResult, remarks, new ArrayList<>());
-                }
-                tableInfoList.add(tableInfo);
-            }
-        }
-        return tableInfoList;
-    }
-
-    private List<TableField> getTableField(Connection conn, String tableName) throws SQLException {
-        DatabaseMetaData metaData = conn.getMetaData();
-
-        // 主键
-        String primaryKey = null;
-        ResultSet primaryKeys = metaData.getPrimaryKeys(null, null, tableName);
-        while (primaryKeys.next()) {
-            primaryKey = primaryKeys.getString("COLUMN_NAME");
-        }
-
-        // 获取表中的所有列名
-        ResultSet rs = metaData.getColumns(null, "%", tableName, "%");
-        List<TableField> fields = new ArrayList<>();
-        while (rs.next()) {
-            // 列名
-            String columnName = rs.getString("COLUMN_NAME");
-            // 字段注释
-            String remarks = rs.getString("REMARKS");
-            // 字段类型
-            int dataType = rs.getInt("DATA_TYPE");
-
-            // 是否为主键
-            boolean primaryKeyFlag = Objects.nonNull(primaryKey) && columnName.equals(primaryKey);
-
-            // 构建表属性
-            TableField tableField = new TableField(columnName, remarks, dataType, primaryKeyFlag, customerJdbcTypeMappingMap);
-            fields.add(tableField);
-        }
-        return fields;
     }
 }

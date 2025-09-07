@@ -2,7 +2,6 @@ package io.github.pdkst.idea.plugin.ui;
 
 import com.caojx.idea.plugin.common.constants.Constant;
 import com.caojx.idea.plugin.common.enums.FrameworkTypeEnum;
-import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.CommonProperties;
 import com.caojx.idea.plugin.common.properties.ControllerProperties;
@@ -16,17 +15,21 @@ import com.caojx.idea.plugin.common.properties.ServiceImplProperties;
 import com.caojx.idea.plugin.common.properties.ServiceProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
 import com.caojx.idea.plugin.common.utils.UIUtils;
-import io.github.pdkst.idea.plugin.state.PersistentState;
-import io.github.pdkst.idea.plugin.state.PersistentStateService;
 import com.caojx.idea.plugin.ui.CustomerJdbcTypeMappingTableDialog;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
+import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
 import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
+import io.github.pdkst.idea.plugin.common.utils.MysqlDatabaseTableResolver;
+import io.github.pdkst.idea.plugin.common.utils.TableResolver;
+import io.github.pdkst.idea.plugin.state.DatabaseStateService;
 import io.github.pdkst.idea.plugin.state.GlobalPersistentState;
 import io.github.pdkst.idea.plugin.state.GlobalPersistentStateService;
+import io.github.pdkst.idea.plugin.state.PersistentState;
+import io.github.pdkst.idea.plugin.state.PersistentStateService;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -177,6 +180,7 @@ public class GeneratorSettingUI extends AbstractDialog {
 
     private final PersistentStateService persistentStateService;
     private final GlobalPersistentStateService globalPersistentStateService;
+    private final DatabaseStateService databaseStateService;
 
     public GeneratorSettingUI(Project project) {
         super(project);
@@ -184,6 +188,7 @@ public class GeneratorSettingUI extends AbstractDialog {
         this.project = project;
         this.globalPersistentStateService = GlobalPersistentStateService.getInstance();
         this.persistentStateService = PersistentStateService.getInstance(project);
+        this.databaseStateService = project.getService(DatabaseStateService.class);
         // 初始化界面数据
         renderUIData(project);
 
@@ -706,9 +711,11 @@ public class GeneratorSettingUI extends AbstractDialog {
         // 转换为jdbcType, clazz
         final Map<String, String> jdbcTypeMappingMap = globalPersistentStateService.getCustomerJdbcTypeMappingMap();
         final Map<JDBCType, Class<?>> newCustomerJdbcTypeMappingMap = JdbcTypeUtils.toJdbcTypeMap(jdbcTypeMappingMap);
-        Database mysql = DatabaseHelper.getMySql(database, newCustomerJdbcTypeMappingMap);
+        Database mysql = DatabaseHelper.getMySql(database);
+        TableResolver tableResolver = new MysqlDatabaseTableResolver(mysql, newCustomerJdbcTypeMappingMap,
+                databaseStateService.getIdentifyPattern());
         try {
-            return mysql.getTablesAndFields(new ArrayList<>(tableNames));
+            return tableResolver.getTablesAndFields(new ArrayList<>(tableNames));
         } catch (SQLException e) {
             return new ArrayList<>();
         }

@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
         // 存放文件名
         storages = @Storage("mybatis-generator-database-plugin.xml"))
 public class DatabaseStateService implements PersistentStateComponent<DatabaseState> {
-    private DatabaseState databaseState;
+    private DatabaseState databaseState = new DatabaseState();
 
     @Delegate
     @Override

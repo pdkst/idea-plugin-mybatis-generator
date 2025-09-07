@@ -3,7 +3,12 @@ package com.caojx.idea.plugin.common.pojo;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -46,31 +51,6 @@ public class TableInfo implements Serializable {
     private Class<?> primaryKeyType;
 
     /**
-     * 是否有JdbcDate属性
-     */
-    private boolean haveJdbcDateField;
-
-    /**
-     * 是否有JdbcTime属性
-     */
-    private boolean haveJdbcTimeField;
-
-    /**
-     * 是否有blob属性
-     */
-    private boolean haveBlobField;
-
-    /**
-     * blob属性列表
-     */
-    private List<TableField> blobFields;
-
-    /**
-     * 非blob属性列表
-     */
-    private List<TableField> notBlobFields;
-
-    /**
      * 构造器
      */
     public TableInfo() {
@@ -89,23 +69,17 @@ public class TableInfo implements Serializable {
         this.fields = fields;
 
         // 主键类型
-        TableField primaryKeyField = Optional.ofNullable(fields).orElse(new ArrayList<>()).stream().filter(TableField::isPrimaryKeyFlag).findAny().orElse(null);
+        TableField primaryKeyField = Optional.ofNullable(fields)
+                .orElse(new ArrayList<>())
+                .stream()
+                .filter(TableField::isPrimaryKeyFlag)
+                .findAny()
+                .orElse(null);
         if (Objects.nonNull(primaryKeyField)) {
             this.havePrimaryKey = true;
             this.primaryKeyName = primaryKeyField.getName();
             this.primaryKeyType = primaryKeyField.getType();
         }
-
-        // 是否含有JdbcDate、JdbcTime属性
-        this.haveJdbcDateField = Optional.ofNullable(fields).orElse(new ArrayList<>()).stream().anyMatch(TableField::isJdbcDateFlag);
-        this.haveJdbcTimeField = Optional.ofNullable(fields).orElse(new ArrayList<>()).stream().anyMatch(TableField::isJdbcTimeFlag);
-
-        // 是否含有blob属性
-        this.blobFields = Optional.ofNullable(fields).orElse(new ArrayList<>()).stream().filter(TableField::isBlobFlag).collect(Collectors.toList());
-        this.haveBlobField = !this.blobFields.isEmpty();
-
-        // 非blob属性列表
-        this.notBlobFields = Optional.ofNullable(fields).orElse(new ArrayList<>()).stream().filter(field -> !field.isBlobFlag()).collect(Collectors.toList());
     }
 
 
@@ -122,5 +96,32 @@ public class TableInfo implements Serializable {
             }
         }
         return imports;
+    }
+
+    private List<TableField> getFields() {
+        if (fields == null) {
+            this.fields = new ArrayList<>();
+        }
+        return this.fields;
+    }
+
+    public boolean isHaveJdbcDateField() {
+        return this.fields.stream().anyMatch(TableField::isJdbcDateFlag);
+    }
+
+    public boolean isHaveJdbcTimeField() {
+        return this.fields.stream().anyMatch(TableField::isJdbcTimeFlag);
+    }
+
+    public boolean isHaveBlobField() {
+        return this.fields.stream().anyMatch(TableField::isBlobFlag);
+    }
+
+    public List<TableField> getBlobFields() {
+        return getFields().stream().filter(TableField::isBlobFlag).collect(Collectors.toList());
+    }
+
+    public List<TableField> getNotBlobFields() {
+        return getFields().stream().filter(field -> !field.isBlobFlag()).collect(Collectors.toList());
     }
 }

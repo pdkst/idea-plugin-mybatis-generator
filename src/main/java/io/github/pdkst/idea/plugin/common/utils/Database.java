@@ -1,10 +1,6 @@
 package io.github.pdkst.idea.plugin.common.utils;
 
-import com.caojx.idea.plugin.common.pojo.TableInfo;
-
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 数据库接口
@@ -15,57 +11,19 @@ import java.util.List;
 public interface Database {
 
     /**
-     * 获取版本
-     *
-     * @return 版本
-     * @throws SQLException 异常
-     */
-    String getVersion() throws SQLException;
-
-    /**
      * 测试数据库
      *
      * @return 测试结果
      */
-    boolean testDatabase();
+    boolean testConnection();
 
     /**
-     * 获取表信息
+     * 执行SQL任务
      *
-     * @param tableName 表名
-     * @return 表信息
+     * @param task 任务
+     * @param <T>  结果类型
+     * @return 结果
      * @throws SQLException 异常
      */
-    default List<TableInfo> getTablesAndFields(String... tableName) throws SQLException {
-        return getTablesAndFields(Arrays.asList(tableName));
-    }
-
-    /**
-     * 获取表信息
-     *
-     * @param tableNames 表名
-     * @return 表信息
-     * @throws SQLException 异常
-     */
-    List<TableInfo> getTablesAndFields(List<String> tableNames) throws SQLException;
-
-    /**
-     * 获取表信息，不包含字段信息
-     *
-     * @param tableName 表名
-     * @return 表信息
-     * @throws SQLException 异常
-     */
-    default List<TableInfo> getTables(String... tableName) throws SQLException {
-        return getTables(Arrays.asList(tableName));
-    }
-
-    /**
-     * 获取表信息，不包含字段信息
-     *
-     * @param tableNames 表名
-     * @return 表信息
-     * @throws SQLException 异常
-     */
-    List<TableInfo> getTables(List<String> tableNames) throws SQLException;
+    <T> T execute(SQLConnectionTask<T> task) throws SQLException;
 }

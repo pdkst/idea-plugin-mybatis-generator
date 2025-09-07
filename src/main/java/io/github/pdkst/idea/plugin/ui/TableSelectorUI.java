@@ -4,9 +4,6 @@ import com.caojx.idea.plugin.common.pojo.TableInfo;
 import com.caojx.idea.plugin.common.properties.EntityProperties;
 import com.caojx.idea.plugin.common.properties.GeneratorProperties;
 import com.caojx.idea.plugin.common.utils.MyMessages;
-import io.github.pdkst.idea.plugin.generator.GeneratorContext;
-import io.github.pdkst.idea.plugin.generator.GeneratorService;
-import io.github.pdkst.idea.plugin.generator.engin.FreemarkerTemplateEngine;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
@@ -15,7 +12,12 @@ import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseWithOutPwdListCellRenderer;
 import io.github.pdkst.idea.plugin.common.utils.JdbcTypeUtils;
+import io.github.pdkst.idea.plugin.common.utils.MysqlDatabaseTableResolver;
 import io.github.pdkst.idea.plugin.common.utils.TableInfoTableModel;
+import io.github.pdkst.idea.plugin.common.utils.TableResolver;
+import io.github.pdkst.idea.plugin.generator.GeneratorContext;
+import io.github.pdkst.idea.plugin.generator.GeneratorService;
+import io.github.pdkst.idea.plugin.generator.engin.FreemarkerTemplateEngine;
 import io.github.pdkst.idea.plugin.state.DatabaseListStateService;
 import io.github.pdkst.idea.plugin.state.DatabaseStateService;
 import io.github.pdkst.idea.plugin.state.GlobalPersistentStateService;
@@ -31,25 +33,25 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TableSelectorUI extends DialogWrapper {
+    // 生成代码业务接口
+    private final GeneratorService generatorService = new GeneratorService(new FreemarkerTemplateEngine());
+
     private final Project project;
     private final PersistentStateService persistentStateService;
     private final GlobalPersistentStateService globalPersistentStateService;
     private final DatabaseListStateService databaseListStateService;
     private final DatabaseStateService databaseStateService;
 
-    // 生成代码业务接口
-    private GeneratorService generatorService = new GeneratorService(new FreemarkerTemplateEngine());
-
     // 界面
     private JPanel contentPane;
     private JComboBox<DatabaseSensitiveProperties> databaseComboBox;
     private JTextField tfTableNameRegex;
     private JTextField tfTablePrefix;
+    private JTextField tfIdentifyPattern;
     private JButton btnQueryTable;
     private JButton btnConfigDataBase;
     // 选择生成的类
@@ -112,6 +114,8 @@ public class TableSelectorUI extends DialogWrapper {
     }
 
     private void saveProperties() {
+        databaseStateService.setTablePrefix(tfTablePrefix.getText());
+        databaseStateService.setIdentifyPattern(tfIdentifyPattern.getText());
         final GeneratorProperties generatorProperties = persistentStateService.getState().getGeneratorProperties();
         generatorProperties.getEntityProperties().setSelectedGenerateCheckBox(entityGenerateCheckBox.isSelected());
         generatorProperties.getEntityProperties()
@@ -156,6 +160,13 @@ public class TableSelectorUI extends DialogWrapper {
             public void keyReleased(KeyEvent e) {
                 final JTextField source = (JTextField) e.getSource();
                 databaseStateService.setTablePrefix(source.getText());
+            }
+        });
+        tfIdentifyPattern.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                final JTextField source = (JTextField) e.getSource();
+                databaseStateService.setIdentifyPattern(source.getText());
             }
         });
         // 设置监听
@@ -203,11 +214,13 @@ public class TableSelectorUI extends DialogWrapper {
             return;
         }
         try {
-            Database mysql = DatabaseHelper.getMySql(database, new HashMap<>(4));
+            Database mysql = DatabaseHelper.getMySql(database);
 
             String tableNamePattern = StringUtils.isBlank(
                     tfTableNameRegex.getText()) ? "%" : "%" + tfTableNameRegex.getText() + "%";
-            List<TableInfo> tableList = mysql.getTables(tableNamePattern);
+            final TableResolver tableResolver = new MysqlDatabaseTableResolver(mysql,
+                    databaseStateService.getIdentifyPattern());
+            List<TableInfo> tableList = tableResolver.getTables(tableNamePattern);
 
             dataModel.setDataList(tableList);
         } catch (Exception ex) {
@@ -256,9 +269,10 @@ public class TableSelectorUI extends DialogWrapper {
                                       List<String> selectedTableNames) {
         try {
             Map<String, String> customerJdbcTypeMappingMap = entityProperties.getCustomerJdbcTypeMappingMap();
-            Database database = DatabaseHelper.getMySql(databaseConfig,
-                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap));
-            return database.getTablesAndFields(selectedTableNames);
+            Database database = DatabaseHelper.getMySql(databaseConfig);
+            final TableResolver tableResolver = new MysqlDatabaseTableResolver(database,
+                    JdbcTypeUtils.toJdbcTypeMap(customerJdbcTypeMappingMap), databaseStateService.getIdentifyPattern());
+            return tableResolver.getTablesAndFields(selectedTableNames);
         } catch (SQLException e) {
             MyMessages.showWarningDialog(project, "获取表信息失败", "info");
             return new ArrayList<>();

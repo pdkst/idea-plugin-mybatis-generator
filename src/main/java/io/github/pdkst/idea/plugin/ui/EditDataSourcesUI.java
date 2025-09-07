@@ -1,10 +1,10 @@
 package io.github.pdkst.idea.plugin.ui;
 
+import com.caojx.idea.plugin.common.utils.MyMessages;
+import com.intellij.openapi.project.Project;
 import io.github.pdkst.idea.plugin.common.enums.DataBaseTypeEnum;
 import io.github.pdkst.idea.plugin.common.pojo.DatabaseProperties;
 import io.github.pdkst.idea.plugin.common.pojo.DatabaseSensitiveProperties;
-import com.caojx.idea.plugin.common.utils.MyMessages;
-import com.intellij.openapi.project.Project;
 import io.github.pdkst.idea.plugin.common.utils.Database;
 import io.github.pdkst.idea.plugin.common.utils.DatabaseHelper;
 import io.github.pdkst.idea.plugin.common.utils.RefreshListener;
@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -306,8 +305,8 @@ public class EditDataSourcesUI extends AbstractDialog {
      * @param databaseWithPwd 数据库
      */
     private boolean testConnectionDB(DatabaseSensitiveProperties databaseWithPwd) {
-        final Database mySql = DatabaseHelper.getMySql(databaseWithPwd, new HashMap<>(4));
-        return mySql.testDatabase();
+        final Database mySql = DatabaseHelper.getMySql(databaseWithPwd);
+        return mySql.testConnection();
     }
 
     @Override

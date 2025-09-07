@@ -67,7 +67,7 @@ public class JdbcTypeMappingHandler {
         JDBC_TYPE_JAVA_TYPE_MAPPING.put(JDBCType.TIMESTAMP_WITH_TIMEZONE, OffsetDateTime.class);
 
         // 覆盖默认的配置
-        if (customerJdbcTypeMappingMap != null && customerJdbcTypeMappingMap.size() != 0) {
+        if (customerJdbcTypeMappingMap != null && !customerJdbcTypeMappingMap.isEmpty()) {
             JDBC_TYPE_JAVA_TYPE_MAPPING.putAll(customerJdbcTypeMappingMap);
         }
     }
@@ -75,7 +75,7 @@ public class JdbcTypeMappingHandler {
     /**
      * sqlType 转为javaType
      *
-     * @param sqlType
+     * @param sqlType 数据库类型
      * @return javaType
      */
     public Class<?> convertJavaType(int sqlType) {
@@ -89,7 +89,7 @@ public class JdbcTypeMappingHandler {
     /**
      * javaType 转jdbcType
      *
-     * @param sqlType
+     * @param sqlType 数据库类型
      * @return jdbcType
      */
     public String convertJdbcType(int sqlType) {
@@ -104,7 +104,7 @@ public class JdbcTypeMappingHandler {
      * 是否为isJDBCDateColumn
      * 参考：org.mybatis.generator.api.IntrospectedColumn#isJDBCDateColumn
      *
-     * @param sqlType
+     * @param sqlType 数据库类型
      * @return true 是、false 不是
      */
     public boolean isJDBCDateColumn(int sqlType) {
@@ -115,7 +115,7 @@ public class JdbcTypeMappingHandler {
      * 是否isJDBCTimeColumn
      * 参考：org.mybatis.generator.api.IntrospectedColumn#isJDBCTimeColumn
      *
-     * @param sqlType
+     * @param sqlType 数据库类型
      * @return true 是、false 不是
      */
     public boolean isJDBCTimeColumn(int sqlType) {
@@ -126,13 +126,10 @@ public class JdbcTypeMappingHandler {
      * 是否BLOB类型
      * 参考：org.mybatis.generator.api.IntrospectedColumn#isBLOBColumn
      *
-     * @param sqlType
+     * @param sqlType 数据库类型
      * @return true 是、false 不是
      */
     public boolean isBLOBColumn(int sqlType) {
-        return Types.BINARY == sqlType || Types.BLOB == sqlType
-                || Types.CLOB == sqlType || Types.LONGNVARCHAR == sqlType
-                || Types.LONGVARBINARY == sqlType || Types.LONGVARCHAR == sqlType
-                || Types.NCLOB == sqlType || Types.VARBINARY == sqlType || Types.OTHER == sqlType;
+        return Types.BINARY == sqlType || Types.BLOB == sqlType || Types.CLOB == sqlType || Types.LONGNVARCHAR == sqlType || Types.LONGVARBINARY == sqlType || Types.LONGVARCHAR == sqlType || Types.NCLOB == sqlType || Types.VARBINARY == sqlType || Types.OTHER == sqlType;
     }
 }
