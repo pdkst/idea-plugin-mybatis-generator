@@ -98,7 +98,7 @@ public class TableInfo implements Serializable {
         return imports;
     }
 
-    private List<TableField> getFields() {
+    public List<TableField> getFields() {
         if (fields == null) {
             this.fields = new ArrayList<>();
         }

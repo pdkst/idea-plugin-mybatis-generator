@@ -108,7 +108,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="^(id|[\w\d]+Id)$"/>
+                  <text value="^(id|[\$\w\d]+Id|[\$\w\d]+By)$"/>
                 </properties>
               </component>
             </children>
